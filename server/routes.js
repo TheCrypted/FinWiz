@@ -15,7 +15,7 @@ module.exports = (pool) => {
                     imf.date
                 FROM imfindicators i JOIN imf ON i.indicator_code = imf.indicator_code
                 WHERE imf.country_code = '${req.query.country}'
-                AND imf.indicator_code IN ('NGDPD','NGDP_RPCH','LUR','PCPIPCH','BCA_NGDPD','GGXWDG_NGDP','NID_NGDP','PPPGDP')
+                AND imf.indicator_code IN ('LE','LP','NID_NGDP','LUR','PCPI','NGSD_NGDP','NGDPD')
                 AND imf.date = (
                     SELECT MAX(date)
                     FROM imf imf2

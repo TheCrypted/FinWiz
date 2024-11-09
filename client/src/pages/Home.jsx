@@ -26,7 +26,7 @@ export const Home = () => {
 
     const handlePolygonClick = useCallback((polygon) => {
         setSelectedPolygon(polygon);
-        console.log(polygon.properties)
+        // console.log(polygon.properties)
         const lat = polygon.properties.label_y - 15;
         const lng = polygon.properties.label_x;
         globeEl.current.pointOfView({
@@ -65,6 +65,26 @@ export const Home = () => {
     return (
         <div className="w-full h-full relative bg-black">
             <div className="w-full h-full absolute">
+                <div className="ticker-wrap bottom-0 absolute h-10 w-full text-white font-serif_light text-2xl ">
+                    <div class="ticker">
+                        <span class="item-collection-1">
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                        </span>
+                        <span class="item-collection-2">
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                            <span class="item">University of Pennsylvania</span>
+                        </span>
+                    </div>
+                </div>
                 <div className="w-full text-white text-9xl flex items-center justify-center h-1/4 font-serif_light absolute top-1/3">
                     {selectedPolygon?.properties?.sovereignt}
                 </div>
@@ -95,12 +115,12 @@ export const Home = () => {
                     polygonsTransitionDuration={transitionDuration}
                 />
             </div>
-            <div className="w-1/4 h-full flex items-center absolute">
+            {selectedPolygon && <div className="w-1/4 h-full flex items-center absolute">
                 <div className="w-full h-2/3">
-                    <InfoCard />
+                    <InfoCard country={selectedPolygon?.properties.adm0_iso}/>
                 </div>
 
-            </div>
+            </div>}
         </div>
 
     );
