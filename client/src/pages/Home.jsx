@@ -2,13 +2,12 @@ import Globe from "react-globe.gl";
 import { useRef, useState, useCallback, useEffect } from 'react';
 import GeoJSON from '../assets/countries.json';
 import earth_img from "../assets/earth_night.jpg"
+import {InfoCard} from "../components/InfoCard.jsx";
 
 export const Home = () => {
     const containerRef = useRef(null);
     const globeEl = useRef();
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-    const [countries, setCountries] = useState({ features: []});
-    const [altitude, setAltitude] = useState(0.1);
     const [transitionDuration, setTransitionDuration] = useState(1000);
     const [hoveredPolygon, setHoveredPolygon] = useState(null);
     const [selectedPolygon, setSelectedPolygon] = useState(null);
@@ -17,6 +16,13 @@ export const Home = () => {
         setHoveredPolygon(polygon);
         document.body.style.cursor = polygon ? 'pointer' : 'default';
     }, []);
+
+    const getPolColor = (polygon) => {
+        if(polygon === selectedPolygon){
+            return "rgba(150, 200, 120, 0.6)";
+        }
+        return hoveredPolygon === polygon ? 'rgba(50, 50, 120, 0.6)' : 'rgba(0, 0, 0, 0)'
+    }
 
     const handlePolygonClick = useCallback((polygon) => {
         setSelectedPolygon(polygon);
@@ -60,10 +66,14 @@ export const Home = () => {
         <div className="w-full h-full relative bg-black">
             <div className="w-full h-full absolute">
                 <div className="w-full text-white text-9xl flex items-center justify-center h-1/4 font-serif_light absolute top-1/3">
-                    United Kingdom
+                    {selectedPolygon?.properties?.sovereignt}
                 </div>
             </div>
-            <div ref={containerRef} className="w-full absolute grid grid-rows-[40%_60%] h-screen ">
+            <div onClick={e => {
+                e.stopPropagation();
+                setSelectedPolygon(null);
+                globeEl.current.controls().autoRotate = true;
+            }} ref={containerRef} className="w-full absolute grid grid-rows-[42%_58%] h-screen">
                 <div/>
                 <Globe
                     ref={globeEl}
@@ -75,15 +85,21 @@ export const Home = () => {
                     polygonsData={GeoJSON.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
                     polygonAltitude={(d) => hoveredPolygon === d ? 0.1 : 0.01}
                     backgroundColor="rgba(0, 0, 0, 0)"
-                    polygonCapColor={(d) => hoveredPolygon === d ? 'rgba(50, 50, 120, 0.6)' : 'rgba(0, 0, 0, 0)'}
+                    polygonCapColor={getPolColor}
                     polygonSideColor={() => 'rgba(200, 200, 200, 0.05)'}
                     onPolygonHover={handlePolygonHover}
                     onPolygonClick={handlePolygonClick}
                     polygonLabel={({properties: d}) => `
-                    <b>${d.name_sort}</b>
+                    <b class="font-serif_bold">${d.name_sort}</b>
                 `}
                     polygonsTransitionDuration={transitionDuration}
                 />
+            </div>
+            <div className="w-1/4 h-full flex items-center absolute">
+                <div className="w-full h-2/3">
+                    <InfoCard />
+                </div>
+
             </div>
         </div>
 
