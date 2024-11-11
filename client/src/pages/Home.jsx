@@ -3,6 +3,7 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import GeoJSON from '../assets/countries.json';
 import earth_img from "../assets/earth_night.jpg"
 import {InfoCard} from "../components/InfoCard.jsx";
+import ReactTextTransition, { presets } from "react-text-transition";
 
 export const Home = () => {
     const containerRef = useRef(null);
@@ -65,7 +66,7 @@ export const Home = () => {
     return (
         <div className="w-full h-full relative bg-black">
             <div className="w-full h-full absolute">
-                <div className="ticker-wrap bottom-0 absolute h-10 w-full text-white font-serif_light text-2xl ">
+                <div className="ticker-wrap bottom-0 absolute h-10 w-full text-slate-800 font-serif_light text-2xl ">
                     <div class="ticker">
                         <span class="item-collection-1">
                             <span class="item">University of Pennsylvania</span>
@@ -86,7 +87,9 @@ export const Home = () => {
                     </div>
                 </div>
                 <div className="w-full text-white text-9xl flex items-center justify-center h-1/4 font-serif_light absolute top-1/3">
-                    {selectedPolygon?.properties?.sovereignt}
+                    <ReactTextTransition className="w-full h-full flex items-center justify-center">
+                        {selectedPolygon?.properties?.sovereignt}
+                    </ReactTextTransition>
                 </div>
             </div>
             <div onClick={e => {
@@ -115,8 +118,8 @@ export const Home = () => {
                     polygonsTransitionDuration={transitionDuration}
                 />
             </div>
-            {selectedPolygon && <div className="w-1/4 h-full flex items-center absolute">
-                <div className="w-full h-2/3">
+            {selectedPolygon && <div className="w-1/4 h-full flex items-end absolute">
+                <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
                     <InfoCard country={selectedPolygon?.properties.adm0_iso}/>
                 </div>
 

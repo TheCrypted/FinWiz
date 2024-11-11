@@ -1,7 +1,12 @@
 import {useEffect, useState} from "react";
 
 export const InfoCard = ({country}) => {
-    const [factCard, setFactCard] = useState([])
+    const [factCard, setFactCard] = useState([
+        {indicator_name: "Employment", value: 20},
+        {indicator_name: "GDP at Current Prices", value: 2605},
+        {indicator_name: "Gross National Savings", value: 21},
+        {indicator_name: "Inflation Index", value: 174},
+    ])
 
     function colorGrade(value) {
         if (value < -50 || value > 200) {
@@ -23,23 +28,15 @@ export const InfoCard = ({country}) => {
             .then(res => setFactCard(res))
     }, [country]);
 
+    // TODO eliminate the background entirel;y make it seem like a part of the page
     return (
-        <div className="w-full h-full rounded-r-2xl grid grid-rows-[20%_80%] bg-opacity-25 bg-gray-600 backdrop-blur-2xl shadow-xl">
-            <div className="flex items-center justify-center text-white text-4xl font-serif_light">
-                Monetary Statistics
-            </div>
-            <div className="w-full h-full flex flex-col">
+        <div className="w-full h-full rounded-r-2xl shadow-xl">
+            <div className="w-full h-full ">
                 {
                     factCard.length > 0 && factCard.map(({indicator_name, value}) => {
                         return (
-                            <div className="h-1/6 grid grid-cols-[70%_30%] w-full">
-                                <div
-                                    className="w-full h-full text-2xl flex items-center pl-4 text-white font-serif">
-                                    {indicator_name.split(",")[0]}
-                                </div>
-                                <div style={{backgroundColor: colorGrade(value)}}
-                                    className="w-full bg-opacity-20 h-full text-white font-serif_bold justify-center text-3xl flex items-center">{Math.round(value)}
-                                </div>
+                            <div className="h-auto py-2 w-full text-2xl flex items-center pl-8 text-gray-400 font-serif">
+                                {indicator_name.split(",")[0]}: {Math.round(value)}
                             </div>
                         )
                     })
