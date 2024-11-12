@@ -22,4 +22,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/src/assets/test.js
+/public/assets/test.js
