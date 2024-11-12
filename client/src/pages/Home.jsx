@@ -12,6 +12,37 @@ export const Home = () => {
     const [transitionDuration, setTransitionDuration] = useState(1000);
     const [hoveredPolygon, setHoveredPolygon] = useState(null);
     const [selectedPolygon, setSelectedPolygon] = useState(null);
+    const [factCard, setFactCard] = useState([
+        {indicator_name: "Employment", value: 20},
+        {indicator_name: "GDP at Current Prices", value: 2605},
+        {indicator_name: "Gross National Savings", value: 21},
+        {indicator_name: "Inflation Index", value: 174},
+        {indicator_name: "Population", value: 42},
+        {indicator_name: "Total Investment", value: 23},
+        {indicator_name: "Unemployment Rate", value: 6},
+    ])
+
+    function colorGrade(value) {
+        if (value < -50 || value > 200) {
+            return 'rgba(0, 255, 0, 0.1)';
+        }
+
+        const normalized = (value + 50) / (200 + 50);
+
+        const red = Math.round((1 - normalized) * 255);
+        const green = Math.round(normalized * 255);
+
+        return `rgba(${red}, ${green}, 0, 0.2)`;
+    }
+
+
+    useEffect(() => {
+        if(!selectedPolygon) return;
+        fetch(`http://localhost:3000/imf/summary?country=${selectedPolygon?.properties.adm0_iso}`)
+            .then(res => res.json())
+            .then(res => setFactCard(res))
+
+    }, [selectedPolygon]);
 
     const handlePolygonHover = useCallback((polygon) => {
         setHoveredPolygon(polygon);
@@ -118,11 +149,36 @@ export const Home = () => {
                     polygonsTransitionDuration={transitionDuration}
                 />
             </div>
-            {selectedPolygon && <div className="w-1/4 h-full flex items-end absolute">
-                <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
-                    <InfoCard country={selectedPolygon?.properties.adm0_iso}/>
+            <div
+                className="w-full z-20 absolute top-0 h-16 grid grid-cols-[20%_60%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
+                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
+                    Hi, Aman
                 </div>
-
+                <div/>
+                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
+                    Portfolio
+                </div>
+                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
+                    Sign In
+                </div>
+            </div>
+            {selectedPolygon && <div onClick={e => {
+                e.stopPropagation();
+                setSelectedPolygon(null);
+                globeEl.current.controls().autoRotate = true;
+            }} className="w-1/4  h-full flex items-end absolute">
+                <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
+                    <InfoCard factCard={factCard.slice(0, 4)} key={0} country={selectedPolygon?.properties.adm0_iso}/>
+                </div>
+            </div>}
+            {selectedPolygon && <div onClick={e => {
+                e.stopPropagation();
+                setSelectedPolygon(null);
+                globeEl.current.controls().autoRotate = true;
+            }} className="w-1/4 h-full flex right-0 items-end absolute">
+                <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
+                    <InfoCard factCard={factCard.slice(4, 8)} key={1} right={true} country={selectedPolygon?.properties.adm0_iso}/>
+                </div>
             </div>}
         </div>
 
