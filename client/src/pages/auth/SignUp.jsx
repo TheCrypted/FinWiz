@@ -29,7 +29,7 @@ export const SignUp = () => {
                 </div>
                 <input placeholder="Username" className="pl-8 placeholder:text-gray-500 placeholder:text-xl text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input ref={emailRef} placeholder="Email" type="email" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
-                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
+                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl rounded-b-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input type="submit" className="hidden"/>
             </form>
         </div>

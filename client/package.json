@@ -39,6 +39,7 @@
     "react-text-transition": "^3.1.0",
     "react-typed": "^2.0.12",
     "react-use-rect": "^2.0.5",
+    "recharts": "^2.13.3",
     "styled-components": "^6.1.12",
     "three": "^0.167.1",
     "world-geojson": "^3.1.1",

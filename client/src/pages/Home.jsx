@@ -4,10 +4,12 @@ import GeoJSON from '../assets/countries.json';
 import earth_img from "../assets/earth_night.jpg"
 import {InfoCard} from "../components/InfoCard.jsx";
 import ReactTextTransition, { presets } from "react-text-transition";
+import {useNavigate} from "react-router-dom";
 
 export const Home = () => {
     const containerRef = useRef(null);
     const globeEl = useRef();
+    const navigate = useNavigate();
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [transitionDuration, setTransitionDuration] = useState(1000);
     const [hoveredPolygon, setHoveredPolygon] = useState(null);
@@ -20,7 +22,7 @@ export const Home = () => {
         {indicator_name: "Population", value: 42},
         {indicator_name: "Total Investment", value: 23},
         {indicator_name: "Unemployment Rate", value: 6},
-    ])
+    ]);
 
     function colorGrade(value) {
         if (value < -50 || value > 200) {
@@ -155,10 +157,10 @@ export const Home = () => {
                     Hi, Aman
                 </div>
                 <div/>
-                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
+                <div onClick={() => navigate("/portfolio")} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
                     Portfolio
                 </div>
-                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
+                <div onClick={() => navigate("/signin")} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
                     Sign In
                 </div>
             </div>

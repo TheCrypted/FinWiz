@@ -29,7 +29,7 @@ export const SignIn = () => {
                     Sign in
                 </div>
                 <input ref={usernameRef} placeholder="Username" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
-                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
+                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full rounded-b-xl transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input type="submit" className="hidden"/>
             </form>
         </div>
