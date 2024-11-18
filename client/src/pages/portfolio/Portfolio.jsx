@@ -10,14 +10,14 @@ export const Portfolio = () => {
 
 
     return (
-        <div className="w-full h-full bg-slate-900">
+        <div className="w-full h-full bg-slate-900 overflow-y-auto">
             <div
-                className="w-full z-20 top-0 h-16 grid grid-cols-[20%_60%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
+                className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                 <div onClick={() => navigate("/")}
                     className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
                     Hi, Aman
                 </div>
-                <div/>
+                <input placeholder="Search Equity" className="rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
                 <div onClick={() => navigate("/portfolio")}
                      className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
                     Portfolio
@@ -30,8 +30,8 @@ export const Portfolio = () => {
             <div className="h-[85%] w-full pl-12 pr-12 grid grid-cols-[70%_30%]">
                 <ChartFin />
                 <div className="cursor-auto w-full h-full pl-2 pr-2 flex items-center justify-center">
-                    <div className="w-full px-6 pb-6 h-2/3  border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
-                        <div className="flex items-center text-white  text-2xl ">Portfolio Highlights</div>
+                    <div className="w-full px-6 pb-6 h-2/3 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
+                        <div className="flex items-center text-white text-2xl ">Portfolio Highlights</div>
                         <div className="w-full flex gap-4">
                             <div className="w-full pl-4 h-full bg-red-800 bg-opacity-30 rounded-xl">
                                 <div className="text-red-800 h-1/2 text-3xl font-bold flex items-end pb-1">-$22.71</div>

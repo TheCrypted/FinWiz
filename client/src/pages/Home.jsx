@@ -97,7 +97,7 @@ export const Home = () => {
     }, []);
 
     return (
-        <div className="w-full h-full relative bg-black">
+        <div className="w-full h-full relative bg-black overflow-hidden">
             <div className="w-full h-full absolute">
                 <div className="ticker-wrap bottom-0 absolute h-10 w-full text-slate-800 font-serif_light text-2xl ">
                     <div class="ticker">

@@ -1,4 +1,5 @@
 import {Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {GraphSuperETF} from "./tiny/GraphSuperETF.jsx";
 
 export const ChartFin = () => {
     const data = [
@@ -9,6 +10,48 @@ export const ChartFin = () => {
         { month: 'May', Portfolio: 189, SP500: 480 },
         { month: 'Jun', Portfolio: 239, SP500: 380 },
         { month: 'Jul', Portfolio: 349, SP500: 430 }
+    ];
+    const marketData = [
+        {
+            symbol: "SPY",
+            dailyChange: -0.42
+        },
+        {
+            symbol: "QQQ",
+            dailyChange: 0.87
+        },
+        {
+            symbol: "VTI",
+            dailyChange: -0.31
+        },
+        {
+            symbol: "IWM",
+            dailyChange: -1.24
+        },
+        {
+            symbol: "EFA",
+            dailyChange: 0.56
+        },
+        {
+            symbol: "VGT",
+            dailyChange: 1.12
+        },
+        {
+            symbol: "XLF",
+            dailyChange: -0.78
+        },
+        {
+            symbol: "VOO",
+            dailyChange: -0.45
+        },
+        {
+            symbol: "ARKK",
+            dailyChange: 2.31
+        },
+        {
+            symbol: "DIA",
+            dailyChange: -0.15
+        }
     ];
 
     const CustomTooltip = ({ active, payload, label }) => {
@@ -74,21 +117,27 @@ export const ChartFin = () => {
                         <Line
                             type="monotone"
                             dataKey="Portfolio"
-                            stroke="#991b1b"
+                            stroke="#f59e0b"
                             strokeWidth={2}
                             activeDot={{r: 8}}
                         />
                         <Line
                             type="monotone"
                             dataKey="SP500"
-                            stroke="#15803d"
+                            stroke="#4338ca"
                             strokeWidth={2}
                             activeDot={{r: 8}}
                         />
                     </LineChart>
                 </ResponsiveContainer>
             </div>
-            <div className=""></div>
+            <div className="flex pl-8 pt-4 flex-wrap flex-col overflow-x-auto hide-scrollbar">
+                {
+                    marketData?.map(item => (
+                        <GraphSuperETF data={item}/>
+                    ))
+                }
+            </div>
         </div>
     )
 
