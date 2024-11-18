@@ -19,7 +19,7 @@ export const SignUp = () => {
     }
 
     return (
-        <div className="w-full h-full bg-amber-50 flex items-center justify-center">
+        <div className="w-full h-full bg-amber-50 overflow-hidden flex items-center justify-center">
             <div className="w-full h-auto">
                 <BorderMarq displacement={mousePos.x}>Fin Wiz</BorderMarq>
             </div>

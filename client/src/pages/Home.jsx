@@ -119,7 +119,7 @@ export const Home = () => {
                         </span>
                     </div>
                 </div>
-                <div className="w-full text-white text-9xl flex items-center justify-center h-1/4 font-serif_light absolute top-1/3">
+                <div className="w-full text-white text-8xl flex items-center justify-center h-1/4 font-serif_light absolute top-1/3">
                     <ReactTextTransition className="w-full h-full flex items-center justify-center">
                         {selectedPolygon?.properties?.sovereignt}
                     </ReactTextTransition>

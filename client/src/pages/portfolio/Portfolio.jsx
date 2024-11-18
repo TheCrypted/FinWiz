@@ -30,16 +30,16 @@ export const Portfolio = () => {
             <div className="h-[85%] w-full pl-12 pr-12 grid grid-cols-[70%_30%]">
                 <ChartFin />
                 <div className="cursor-auto w-full h-full pl-2 pr-2 flex items-center justify-center">
-                    <div className="w-full px-6 pb-6 h-2/3 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
+                    <div className="w-full px-6 pb-6 h-3/4 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
                         <div className="flex items-center text-white text-2xl ">Portfolio Highlights</div>
                         <div className="w-full flex gap-4">
                             <div className="w-full pl-4 h-full bg-red-800 bg-opacity-30 rounded-xl">
                                 <div className="text-red-800 h-1/2 text-3xl font-bold flex items-end pb-1">-$22.71</div>
-                                <div className="text-red-800 h-1/2 text-3xl flex items-start pt-1">↓ 1.63%</div>
+                                <div className="text-red-800 h-1/2 text-2xl flex items-start pt-1">↓ 1.63%</div>
                             </div>
                             <div className="w-full pl-2 h-full bg-green-700 bg-opacity-30 rounded-xl">
                                 <div className="text-green-700 h-1/2 text-3xl font-bold flex items-end pb-1">+$42.32</div>
-                                <div className="text-green-700 h-1/2 text-3xl flex items-start pt-1">↑ 3.19%</div>
+                                <div className="text-green-700 h-1/2 text-2xl flex items-start pt-1">↑ 3.19%</div>
                             </div>
                         </div>
                         <div/>
@@ -56,6 +56,7 @@ export const Portfolio = () => {
                             <ShareIndex strength={2} pc={21.2} value={353.04} text={"Finance"}/>
                             <ShareIndex strength={1} pc={8.2} value={103.04} text={"Other"}/>
                         </div>
+                        {/*<div />*/}
                         <div className="w-full h-full  flex ">
                             <div className="w-full border-r border-opacity-30 border-white grid grid-cols-[20%_80%]  h-full">
                                 <div className="w-full h-full flex items-center justify-center">
@@ -68,7 +69,7 @@ export const Portfolio = () => {
                                               clipRule="evenodd"/>
                                     </svg>
                                 </div>
-                                <div className="w-full h-full flex items-center justify-start text-white text-xl">
+                                <div className="w-full h-full flex items-center justify-start text-white text-lg">
                                     53% Sustainable
                                 </div>
                             </div>
@@ -83,7 +84,7 @@ export const Portfolio = () => {
                                               clipRule="evenodd"/>
                                     </svg>
                                 </div>
-                                <div className="w-full h-full flex items-center justify-end text-white text-xl">
+                                <div className="w-full h-full flex items-center justify-end text-white text-lg">
                                     53% High-Dividend
                                 </div>
                             </div>
