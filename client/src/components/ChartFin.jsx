@@ -84,7 +84,7 @@ export const ChartFin = () => {
                     <div className="flex">
                         <div className="w-20 h-full" />
 
-                        <div className="flex items-end w-auto pr-4 h-full text-white font-serif_light text-6xl">$2,380.06</div>
+                        <div className="flex items-end w-auto pr-4 h-full text-white font-mono text-6xl">2,380.06</div>
                         <div className="w-auto h-full font-bold text-green-700 text-3xl flex items-center">↑1.2%</div>
                     </div>
                     <div className="flex gap-2 w-1/4 place-items-end ">

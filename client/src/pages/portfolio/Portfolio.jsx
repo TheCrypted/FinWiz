@@ -2,15 +2,40 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import {useNavigate} from "react-router-dom";
 import {ShareIndex} from "../../components/tiny/ShareIndex.jsx";
 import {ChartFin} from "../../components/ChartFin.jsx";
+import {StockMin} from "../../components/tiny/StockMin.jsx";
+import {getColorFromPercentChange, stringToRGB} from "../../utils/helpers.js";
 
 
 export const Portfolio = () => {
     const navigate = useNavigate();
-
-
+    const stocks = [
+        {'ticker': 'HON', 'current_price': 228.7, 'quantity': 15, 'purchase_price': 225.0, 'day_change': -0.36, 'full_name': 'Honeywell International Inc.'},
+        {'ticker': 'BUD', 'current_price': 56.25, 'quantity': 10, 'purchase_price': 53.0, 'day_change': -0.18, 'full_name': 'Anheuser-Busch Companies, Inc.'},
+        {'ticker': 'EMC', 'current_price': 26.4, 'quantity': 30, 'purchase_price': 29.0, 'day_change': -0.64, 'full_name': 'EMC Corporation'},
+        {'ticker': 'GE', 'current_price': 176.81, 'quantity': 8, 'purchase_price': 180.0, 'day_change': -0.1, 'full_name': 'General Electric Company'},
+        {'ticker': 'XOM', 'current_price': 120.31, 'quantity': 25, 'purchase_price': 115.0, 'day_change': 0.84, 'full_name': 'Exxon Mobil Corporation'},
+        {'ticker': 'BAY', 'current_price': 50.2, 'quantity': 12, 'purchase_price': 48.5, 'day_change': 0.5, 'full_name': 'Bayer Aktiengesellschaft'},
+        {'ticker': 'UL', 'current_price': 43.8, 'quantity': 20, 'purchase_price': 40.0, 'day_change': 0.6, 'full_name': 'Unilever PLC'},
+        {'ticker': 'FDX', 'current_price': 265.1, 'quantity': 5, 'purchase_price': 250.0, 'day_change': -0.4, 'full_name': 'FedEx Corporation'},
+        {'ticker': 'BMO', 'current_price': 95.3, 'quantity': 18, 'purchase_price': 92.0, 'day_change': 0.3, 'full_name': 'Bank Of Montreal'},
+        {'ticker': 'GDT', 'current_price': 62.7, 'quantity': 7, 'purchase_price': 60.0, 'day_change': -0.2, 'full_name': 'Guidant Corporation'},
+        {'ticker': 'BRK/B', 'current_price': 310.9, 'quantity': 3, 'purchase_price': 305.0, 'day_change': -0.15, 'full_name': 'Berkshire Hathaway Inc.'},
+        {'ticker': 'GUI', 'current_price': 72.5, 'quantity': 9, 'purchase_price': 70.0, 'day_change': 0.1, 'full_name': 'Gucci Industries'},
+        {'ticker': 'CAH', 'current_price': 65.4, 'quantity': 14, 'purchase_price': 63.0, 'day_change': 0.25, 'full_name': 'Cardinal Health, Inc.'},
+        {'ticker': 'PCZ', 'current_price': 39.2, 'quantity': 22, 'purchase_price': 38.0, 'day_change': 0.15, 'full_name': 'Petro-Canada'},
+        {'ticker': 'SLF', 'current_price': 58.6, 'quantity': 16, 'purchase_price': 57.0, 'day_change': 0.8, 'full_name': 'Sun Life Financial Incorporated'},
+        {'ticker': 'PUK', 'current_price': 40.7, 'quantity': 13, 'purchase_price': 39.5, 'day_change': -0.05, 'full_name': 'Prudential Public Limited Company'},
+        {'ticker': 'TOD', 'current_price': 80.2, 'quantity': 5, 'purchase_price': 78.0, 'day_change': -0.1, 'full_name': 'Today Corp.'},
+        {'ticker': 'SNC', 'current_price': 45.1, 'quantity': 11, 'purchase_price': 43.5, 'day_change': 0.2, 'full_name': 'SN Corporation'},
+        {'ticker': 'AUTH', 'current_price': 29.9, 'quantity': 12, 'purchase_price': 30.0, 'day_change': -0.25, 'full_name': 'Authentic Inc.'},
+        {'ticker': 'CSCO', 'current_price': 55.6, 'quantity': 25, 'purchase_price': 54.0, 'day_change': 0.5, 'full_name': 'Cisco Systems, Inc.'},
+        {'ticker': 'NTDOY', 'current_price': 77.8, 'quantity': 10, 'purchase_price': 75.0, 'day_change': -0.15, 'full_name': 'Nintendo Co., Ltd.'},
+        {'ticker': 'LLOY', 'current_price': 2.3, 'quantity': 100, 'purchase_price': 2.5, 'day_change': -0.05, 'full_name': 'Lloyds Banking Group plc'},
+        {'ticker': 'UBER', 'current_price': 47.3, 'quantity': 15, 'purchase_price': 46.0, 'day_change': 0.6, 'full_name': 'Uber Technologies, Inc.'},
+        {'ticker': 'PYPL', 'current_price': 188.7, 'quantity': 6, 'purchase_price': 190.0, 'day_change': 0.3, 'full_name': 'PayPal Holdings'}]
 
     return (
-        <div className="w-full h-full bg-slate-900 overflow-y-auto">
+        <div className="w-full h-full bg-slate-900 overflow-y-auto scrollbar">
             <div
                 className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                 <div onClick={() => navigate("/")}
@@ -56,7 +81,6 @@ export const Portfolio = () => {
                             <ShareIndex strength={2} pc={21.2} value={353.04} text={"Finance"}/>
                             <ShareIndex strength={1} pc={8.2} value={103.04} text={"Other"}/>
                         </div>
-                        {/*<div />*/}
                         <div className="w-full h-full  flex ">
                             <div className="w-full border-r border-opacity-30 border-white grid grid-cols-[20%_80%]  h-full">
                                 <div className="w-full h-full flex items-center justify-center">
@@ -88,10 +112,31 @@ export const Portfolio = () => {
                                     53% High-Dividend
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="pl-20 w-full h-full">
+                <div className="w-full h-20"/>
+                <div className="grid grid-cols-[67%_33%]">
+                    <div>
+                        <div
+                            className="w-full p-2 border-b border-white font-mono border-opacity-10 text-white h-auto grid grid-cols-[10%_40%_10%_10%_10%_10%_10%]">
+                            <div className="flex items-center justify-center opacity-50">SYMBOL</div>
+                            <div className="flex items-center pl-4 opacity-50">NAME</div>
+                            <div className="flex items-center justify-end  opacity-50">PRICE</div>
+                            <div className="flex items-center justify-end  opacity-50">QUANTITY</div>
+                            <div className="flex items-center justify-center  opacity-50">GAIN</div>
+                            <div className="flex items-center justify-end  opacity-50">VALUE</div>
+                        </div>
+                        {
+                            stocks.map((item) => <StockMin data={item}/>)
+                        }
+                    </div>
+                </div>
+                <div className="w-full h-20"/>
+
+
             </div>
 
         </div>
