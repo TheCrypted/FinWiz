@@ -1,10 +1,12 @@
 import Globe from "react-globe.gl";
-import { useRef, useState, useCallback, useEffect } from 'react';
+import {useRef, useState, useCallback, useEffect, useContext} from 'react';
 import GeoJSON from '../assets/countries.json';
 import earth_img from "../assets/earth_night.jpg"
 import {InfoCard} from "../components/InfoCard.jsx";
 import ReactTextTransition, { presets } from "react-text-transition";
 import {useNavigate} from "react-router-dom";
+import {AuthContext} from "../context/AuthContext.jsx";
+import {jwtDecode} from "jwt-decode";
 
 export const Home = () => {
     const containerRef = useRef(null);
@@ -14,6 +16,8 @@ export const Home = () => {
     const [transitionDuration, setTransitionDuration] = useState(1000);
     const [hoveredPolygon, setHoveredPolygon] = useState(null);
     const [selectedPolygon, setSelectedPolygon] = useState(null);
+    const { user, authTokens, login, logout } = useContext(AuthContext);
+
     const [factCard, setFactCard] = useState([
         {indicator_name: "Employment", value: 20},
         {indicator_name: "GDP at Current Prices", value: 2605},
@@ -46,6 +50,7 @@ export const Home = () => {
 
     }, [selectedPolygon]);
 
+
     const handlePolygonHover = useCallback((polygon) => {
         setHoveredPolygon(polygon);
         document.body.style.cursor = polygon ? 'pointer' : 'default';
@@ -58,9 +63,9 @@ export const Home = () => {
         return hoveredPolygon === polygon ? 'rgba(50, 50, 120, 0.6)' : 'rgba(0, 0, 0, 0)'
     }
 
+
     const handlePolygonClick = useCallback((polygon) => {
         setSelectedPolygon(polygon);
-        // console.log(polygon.properties)
         const lat = polygon.properties.label_y - 15;
         const lng = polygon.properties.label_x;
         globeEl.current.pointOfView({
@@ -81,6 +86,7 @@ export const Home = () => {
         globeEl.current.pointOfView({lat:0, long:0, altitude: 1.75 }, 200);
     }, []);
 
+
     useEffect(() => {
         const updateDimensions = () => {
             if (containerRef.current) {
@@ -100,22 +106,22 @@ export const Home = () => {
         <div className="w-full h-full relative bg-black overflow-hidden">
             <div className="w-full h-full absolute">
                 <div className="ticker-wrap bottom-0 absolute h-10 w-full text-slate-800 font-serif_light text-2xl ">
-                    <div class="ticker">
-                        <span class="item-collection-1">
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
+                    <div className="ticker">
+                        <span className="item-collection-1">
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
                         </span>
-                        <span class="item-collection-2">
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
-                            <span class="item">University of Pennsylvania</span>
+                        <span className="item-collection-2">
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
+                            <span className="item">University of Pennsylvania</span>
                         </span>
                     </div>
                 </div>
@@ -153,8 +159,8 @@ export const Home = () => {
             </div>
             <div
                 className="w-full z-20 absolute top-0 h-16 grid grid-cols-[20%_60%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
-                <div className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
-                    Hi, Aman
+                <div onClick={() => console.log(user, authTokens)} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
+                    Hi, {user?.username}
                 </div>
                 <div/>
                 <div onClick={() => navigate("/portfolio")} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">

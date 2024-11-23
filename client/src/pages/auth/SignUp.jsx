@@ -8,14 +8,30 @@ export const SignUp = () => {
     const emailRef = useRef(null);
     const pwdRef = useRef();
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         const payload = {
-            username: usernameRef.current,
-            email: emailRef,
-            password: pwdRef.current,
+            username: usernameRef.current.value,
+            email: emailRef.current.value,
+            password: pwdRef.current.value,
         }
-        // TODO: API req here
+
+        try {
+            const response = await fetch("http://localhost:3000/auth/register", {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            const data = await response.json();
+
+            if(response.ok) {
+                console.log(data)
+            }
+        } catch (error) {
+            console.log("Error registering user", error)
+        }
     }
 
     return (
@@ -27,9 +43,9 @@ export const SignUp = () => {
                 <div className="w-full h-full flex items-center pt-3 px-8 text-5xl font-serif ">
                     Sign up
                 </div>
-                <input placeholder="Username" className="pl-8 placeholder:text-gray-500 placeholder:text-xl text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
+                <input ref={usernameRef} placeholder="Username" className="pl-8 placeholder:text-gray-500 placeholder:text-xl text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input ref={emailRef} placeholder="Email" type="email" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
-                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl rounded-b-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
+                <input ref={pwdRef} placeholder="Password" type="password" className="pl-8 placeholder:text-xl rounded-b-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input type="submit" className="hidden"/>
             </form>
         </div>

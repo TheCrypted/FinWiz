@@ -1,22 +1,44 @@
 import {useMousePosition} from "../../context/MousePositionProvider.jsx";
 import {BorderMarq} from "../../utils/BorderMarq.jsx";
-import {useRef} from "react";
-
-
+import {useContext, useRef} from "react";
+import {AuthContext} from "../../context/AuthContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 export const SignIn = () => {
     const mousePos = useMousePosition();
     const usernameRef = useRef(null);
     const pwdRef = useRef(null);
+    const navigate = useNavigate();
+    const {login} = useContext(AuthContext);
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         const payload = {
-            username: usernameRef.current,
-            password: pwdRef.current,
+            username: usernameRef.current.value,
+            password: pwdRef.current.value,
         }
-        // TODO: API req here
+
+
+        try {
+            const response = await fetch("http://localhost:3000/auth/login", {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            const data = await response.json();
+
+            if (response.ok) {
+                login(data);
+                navigate("/")
+            } else {
+                alert("Authentication failed");
+            }
+        } catch (error) {
+            console.log("Error signing in", error)
+        }
     }
 
     return (
@@ -29,7 +51,7 @@ export const SignIn = () => {
                     Sign in
                 </div>
                 <input ref={usernameRef} placeholder="Username" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
-                <input placeholder="Password" type="password" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full rounded-b-xl transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
+                <input ref={pwdRef} placeholder="Password" type="password" className="pl-8 placeholder:text-xl placeholder:text-gray-500 text-2xl w-full h-full rounded-b-xl transition-colors focus:bg-opacity-20 bg-black bg-opacity-0 focus:outline-none"></input>
                 <input type="submit" className="hidden"/>
             </form>
         </div>

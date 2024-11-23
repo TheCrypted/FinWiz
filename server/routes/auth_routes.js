@@ -1,73 +1,113 @@
 const express = require('express');
-const {hash} = require("bcrypt");
+const {hash, compare} = require("bcrypt");
 const {sign, verify} = require("jsonwebtoken");
+const {verifyToken} = require("../middleware/auth");
 const router = express.Router();
 require('dotenv').config();
 
-
 module.exports = (pool) => {
+
+    router.get('/get_user', verifyToken, async (req, res) => {
+        try {
+            const result = await pool.query(
+                "SELECT user_id, email, capital, username FROM Users WHERE user_id = $1",
+                [req.user.userId]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({message: "User not found"});
+            }
+
+            res.json({
+                user: result.rows[0]
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({message: "Error fetching user details"});
+        }
+    });
 
     router.post("/register", async (req, res) => {
         const {email, password, username} = req.body;
+
         try {
             const hashedPassword = await hash(password, 10);
-
             const result = await pool.query(
                 "INSERT INTO Users (user_id, email, username, password) VALUES ($1, $2, $3, $4) RETURNING *",
                 [Date.now().toString(), email, username, hashedPassword]
             );
-
             res.status(201).json({ message: "User registered successfully", user: result.rows[0] });
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: "Error registering user" });
         }
-    })
+    });
 
     router.post("/login", async (req, res) => {
-        const { email, password } = req.body;
-
+        const { username, password } = req.body;
         try {
-            const result = await pool.query("SELECT * FROM Users WHERE email = $1", [email]);
+            const result = await pool.query("SELECT * FROM Users WHERE username = $1", [username]);
             const user = result.rows[0];
 
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-
+            const isPasswordValid = await compare(password, user.password);
             if (!isPasswordValid) {
                 return res.status(401).json({ message: "Invalid credentials" });
             }
 
-            const token = sign({ userId: user.user_id }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+            const accessToken = sign(
+                { user_id: user.user_id },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: "60m" }
+            );
 
-            res.status(200).json({ message: "Login successful", token });
+            const refreshToken = sign(
+                { user_id: user.user_id },
+                process.env.JWT_REFRESH_KEY,
+                { expiresIn: "7d" }
+            );
+
+            res.status(200).json({
+                message: "Login successful",
+                access: accessToken,
+                refresh: refreshToken,
+                user: {
+                    user_id: user.user_id,
+                    email: user.email,
+                    username: user.username
+                }
+            });
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: "Error logging in" });
         }
     });
 
-    function authenticateToken(req, res, next) {
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
-        if (!token) {
-            return res.status(401).json({ message: "Access denied" });
-        }
-        verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: "Invalid token" });
-            }
-            req.user = user;
-            next();
-        });
-    }
+    router.post("/refresh", async (req, res) => {
+        const { refresh } = req.body;
 
-    router.get("/protected", authenticateToken, (req, res) => {
-        res.status(200).json({ message: "You have access to this protected route", user: req.user });
+        if (!refresh) {
+            return res.status(401).json({ message: "Refresh token required" });
+        }
+
+        try {
+            const decoded = verify(refresh, process.env.JWT_REFRESH_KEY);
+            const accessToken = sign(
+                { user_id: decoded.user_id },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: "60m" }
+            );
+
+            res.json({
+                access: accessToken
+            });
+        } catch (err) {
+            return res.status(403).json({ message: "Invalid refresh token" });
+        }
     });
 
     return router;
-};
+}

@@ -4,10 +4,13 @@ import {ShareIndex} from "../../components/tiny/ShareIndex.jsx";
 import {ChartFin} from "../../components/ChartFin.jsx";
 import {StockMin} from "../../components/tiny/StockMin.jsx";
 import {getColorFromPercentChange, stringToRGB} from "../../utils/helpers.js";
+import {useContext, useEffect} from "react";
+import {AuthContext} from "../../context/AuthContext.jsx";
 
 
 export const Portfolio = () => {
     const navigate = useNavigate();
+    const {user, authTokens} = useContext(AuthContext)
     const stocks = [
         {'ticker': 'HON', 'current_price': 228.7, 'quantity': 15, 'purchase_price': 225.0, 'day_change': -0.36, 'full_name': 'Honeywell International Inc.'},
         {'ticker': 'BUD', 'current_price': 56.25, 'quantity': 10, 'purchase_price': 53.0, 'day_change': -0.18, 'full_name': 'Anheuser-Busch Companies, Inc.'},
@@ -34,13 +37,27 @@ export const Portfolio = () => {
         {'ticker': 'UBER', 'current_price': 47.3, 'quantity': 15, 'purchase_price': 46.0, 'day_change': 0.6, 'full_name': 'Uber Technologies, Inc.'},
         {'ticker': 'PYPL', 'current_price': 188.7, 'quantity': 6, 'purchase_price': 190.0, 'day_change': 0.3, 'full_name': 'PayPal Holdings'}]
 
+    useEffect(() => {
+        if(authTokens) {
+            fetch("http://localhost:3000/portfolio/investments", {
+                method: 'GET',
+                headers: {
+                    "authorization": "Bearer " + authTokens.access,
+                    "Content-Type": "application/json"
+                }
+            }).then(res => res.json())
+                .then(res => console.log(res.investments))
+                .catch(err => console.log(err.message))
+        }
+    }, [authTokens])
+
     return (
         <div className="w-full h-full bg-slate-900 overflow-y-auto scrollbar">
             <div
                 className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                 <div onClick={() => navigate("/")}
                     className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
-                    Hi, Aman
+                    Hi, {user?.username}
                 </div>
                 <input placeholder="Search Equity" className="rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
                 <div onClick={() => navigate("/portfolio")}
