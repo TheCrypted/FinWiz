@@ -129,12 +129,115 @@ module.exports = (pool) => {
     });
 
 
+    // Route for complex query 5
+    router.get("/getTopStocksPerCountry", verifyToken, async (req, res) => {
+        try {
+            const result = await pool.query(
+                `WITH AveragePerformance AS (
+                SELECT
+                S.name AS stock_name,
+                S.country_code,
+                AVG(P.close) AS av_performance
+                FROM stock_desc S
+                JOIN stock_price P on P.ticker = S.ticker
+                WHERE P.date BETWEEN '2022-01-01' AND '2023-12-31'
+                GROUP BY S.name, S.country_code ),
+
+                TopStocks AS (
+                SELECT A.stock_name, A.country_code, A.av_performance
+                FROM AveragePerformance A
+                WHERE
+                (SELECT COUNT(*)
+                FROM AveragePerformance P
+                WHERE P.country_code = A.country_code AND P.av_performance > A.av_performance)
+                <= 5 )
+                SELECT
+                C.country_name,
+                STRING_AGG(T.stock_name, ', ' ORDER BY T.av_performance DESC) AS best_stocks,
+                AVG(T.av_performance) AS avg_country_performance
+                FROM Country C JOIN TopStocks T ON C.country_code = T.country_code
+                GROUP BY C.country_name
+                ORDER BY avg_country_performance DESC;
+                `);
+
+            res.json({
+                rank_stock_info: result.rows
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error fetching stock ranking details" });
+        }
+    });
 
 
+    // Route for complex query 6
+    router.get("/getIncreasingIndicators", verifyToken, async (req, res) => {
+        try {
+            const result = await pool.query(
+                `CREATE INDEX idx_education_country_indicator_year
+                ON Education (country_code, indicator_code, year, value);
 
 
+                CREATE INDEX idx_education_indicators_indicator_code
+                ON EducationIndicators (indicator_code);
 
 
+                CREATE INDEX idx_country_country_code
+                ON Country (country_code);
+
+
+                WITH RankedData AS (
+                SELECT
+                    e.country_code,
+                    e.indicator_code,
+                    e.year,
+                    e.value,
+                    ROW_NUMBER() OVER (PARTITION BY e.country_code, e.indicator_code ORDER BY e.year) AS row_num
+                FROM Education e
+                WHERE e.year BETWEEN 2015 AND 2020
+                ),
+                ConsecutiveYears AS (
+                SELECT
+                    r1.country_code,
+                    r1.indicator_code,
+                    r1.year AS start_year,
+                    r2.year AS next_year
+                FROM RankedData r1
+                JOIN RankedData r2
+                    ON r1.country_code = r2.country_code
+                    AND r1.indicator_code = r2.indicator_code
+                    AND r1.row_num + 1 = r2.row_num
+                WHERE r1.value < r2.value
+                ),
+                AggregatedYears AS (
+                SELECT
+                    cy.country_code,
+                    cy.indicator_code,
+                    MIN(cy.start_year) AS begin_year,
+                    MAX(cy.next_year) AS end_year
+                FROM ConsecutiveYears cy
+                GROUP BY cy.country_code, cy.indicator_code
+                )
+                SELECT
+                c.country_name,
+                ei.indicator_name,
+                a.begin_year,
+                a.end_year
+                FROM AggregatedYears a
+                JOIN Country c
+                ON a.country_code = c.country_code
+                JOIN EducationIndicators ei
+                ON a.indicator_code = ei.indicator_code
+                ORDER BY c.country_name, ei.indicator_name;`);
+
+            res.json({
+                inc_education_info: result.rows
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error fetching improving education details" });
+        }
+    });
 
     return router
 };
