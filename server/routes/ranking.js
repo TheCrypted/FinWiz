@@ -40,7 +40,7 @@ module.exports = (pool) => {
                 FROM IMF
                 JOIN Country c on c.country_code = IMF.country_code 
                 JOIN IMFIndicators i ON i.indicator_code = IMF.indicator_code
-                WHERE i.indicator_name LIKE '%{user_input}%'
+                WHERE i.indicator_name LIKE $1
                 GROUP BY IMF.country_code;`,
                 [imf_indicator_code]
             );
