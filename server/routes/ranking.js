@@ -1,10 +1,9 @@
 const express = require('express');
-const { hash } = require("bcrypt");
 const router = express.Router();
 
 module.exports = (pool) => {
     // Route for simple query 3
-    router.get("/getTopCountriesEducation/:education_indicator_code", verifyToken, async (req, res) => {
+    router.get("/getTopCountriesEducation/:education_indicator_code", async (req, res) => {
         try {
             const { education_indicator_code } = req.params;
 
@@ -31,7 +30,7 @@ module.exports = (pool) => {
 
 
     // Route for simple query 4
-    router.get("/getTopCountriesIMF/:imf_indicator_code", verifyToken, async (req, res) => {
+    router.get("/getTopCountriesIMF/:imf_indicator_code", async (req, res) => {
         try {
             const { imf_indicator_code } = req.params;
 
@@ -55,7 +54,7 @@ module.exports = (pool) => {
     });
 
     // Route for complex query 2
-    router.get("/getTopCountriesCombined", verifyToken, async (req, res) => {
+    router.get("/getTopCountriesCombined", async (req, res) => {
         try {
             const result = await pool.query(
                 `WITH CountryEducationMetrics AS (
@@ -130,7 +129,7 @@ module.exports = (pool) => {
 
 
     // Route for complex query 5
-    router.get("/getTopStocksPerCountry", verifyToken, async (req, res) => {
+    router.get("/getTopStocksPerCountry", async (req, res) => {
         try {
             const result = await pool.query(
                 `WITH AveragePerformance AS (
@@ -171,7 +170,7 @@ module.exports = (pool) => {
 
 
     // Route for complex query 6
-    router.get("/getIncreasingIndicators", verifyToken, async (req, res) => {
+    router.get("/getIncreasingIndicators", async (req, res) => {
         try {
             const result = await pool.query(
                 `CREATE INDEX idx_education_country_indicator_year

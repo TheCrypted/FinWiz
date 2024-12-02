@@ -1,10 +1,9 @@
 const express = require('express');
-const {hash} = require("bcrypt");
 const router = express.Router();
 
 module.exports = (pool) => {
     // route for simple query 1
-    router.get("/getEducationInfo/country_name", verifyToken, async (req, res) => {
+    router.get("/getEducationInfo/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 
@@ -23,7 +22,7 @@ module.exports = (pool) => {
     })
 
     // route for simple query 2
-    router.get("/getIMFInfo/country_name", verifyToken, async (req, res) => {
+    router.get("/getIMFInfo/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 
@@ -42,7 +41,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 3 
-    router.get("/getIMFPerformance/country_name", verifyToken, async (req, res) => {
+    router.get("/getIMFPerformance/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 
@@ -61,7 +60,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 4
-    router.get("/getSummaryStockInfo/country_name", verifyToken, async (req, res) => {
+    router.get("/getSummaryStockInfo/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 
@@ -80,7 +79,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 7
-    router.get("/getSimilarEducationCountries/country_name", verifyToken, async (req, res) => {
+    router.get("/getSimilarEducationCountries/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 
@@ -99,7 +98,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 8
-    router.get("/getPercentageDiffEducation/country_name", verifyToken, async (req, res) => {
+    router.get("/getPercentageDiffEducation/country_name", async (req, res) => {
         try {
             const {country_name} = req.country_name;
 

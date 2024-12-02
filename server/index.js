@@ -22,6 +22,9 @@ app.use(express.json());
 app.use('/', routes(pool));
 app.use('/auth', auth_routes(pool));
 app.use('/portfolio', portfolio_routes(pool));
+app.use('/', home_routes(pool));
+app.use('/', ranking_routes(pool));
+app.use('/', country_routes(pool));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

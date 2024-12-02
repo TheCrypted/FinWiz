@@ -1,10 +1,11 @@
 const express = require('express');
 const { hash } = require("bcrypt");
+const {verifyToken} = require("../middleware/auth");
 const router = express.Router();
 
 module.exports = (pool) => {
     // Route for complex query 9
-    router.get("/home/:country_name", verifyToken, async (req, res) => {
+    router.get("/home/:country_name", async (req, res) => {
         try {
             const { country_name } = req.params;
 
