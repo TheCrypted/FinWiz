@@ -9,6 +9,9 @@ const pool = new Pool({
     database: config.rds_db,
     password: config.rds_password,
     port: config.rds_port,
+    ssl: {
+        rejectUnauthorized: false,
+      },
 });
 
 module.exports = pool;
