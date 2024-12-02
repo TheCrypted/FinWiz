@@ -3,7 +3,7 @@
   "rds_port": "5432",
   "rds_user": "group3",
   "rds_password": "AmanEvelynJakubViolet1!",
-  "rds_db": "international-finance",
+  "rds_db": "postgres",
   "server_host": "localhost",
-  "server_port": "8080"
+  "server_port": "3000"
 }
