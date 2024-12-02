@@ -8,7 +8,7 @@ const pool = new Pool({
     host: config.rds_host,
     database: config.rds_db,
     password: config.rds_password,
-    port: 5433,
+    port: config.rds_port,
 });
 
 module.exports = pool;
