@@ -1,12 +1,13 @@
 const { Pool } = require('pg');
+const config = require('./config.json');
 require('dotenv').config();
 
 const pool = new Pool({
     ssl: false,
-    user: process.env.DB_USERNAME,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PWD,
+    user: config.rds_user,
+    host: config.rds_host,
+    database: config.rds_db,
+    password: config.rds_password,
     port: 5433,
 });
 
