@@ -35,12 +35,21 @@ module.exports = (pool) => {
             const { imf_indicator_code } = req.params;
 
             const result = await pool.query(
-                `SELECT TOP 10 c.country_name, AVG(IMF.value)
-                FROM IMF
-                JOIN Country c on c.country_code = IMF.country_code 
-                JOIN IMFIndicators i ON i.indicator_code = IMF.indicator_code
-                WHERE i.indicator_name LIKE $1
-                GROUP BY IMF.country_code;`,
+                `SELECT
+                    c.country_name,
+                    AVG(IMF.value) AS avg_value
+                FROM
+                    imf
+                    JOIN country c ON c.country_code = IMF.country_code
+                    JOIN imfindicators i ON i.indicator_code = IMF.indicator_code
+                WHERE
+                    i.indicator_code = $1
+                GROUP BY
+                    c.country_name
+                ORDER BY
+                    avg_value DESC
+                LIMIT 10;
+                `,
                 [imf_indicator_code]
             );
 
@@ -173,18 +182,7 @@ module.exports = (pool) => {
     router.get("/getIncreasingIndicators", async (req, res) => {
         try {
             const result = await pool.query(
-                `CREATE INDEX idx_education_country_indicator_year
-                ON Education (country_code, indicator_code, year, value);
-
-
-                CREATE INDEX idx_education_indicators_indicator_code
-                ON EducationIndicators (indicator_code);
-
-
-                CREATE INDEX idx_country_country_code
-                ON Country (country_code);
-
-
+                `
                 WITH RankedData AS (
                 SELECT
                     e.country_code,
