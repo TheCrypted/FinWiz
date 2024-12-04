@@ -6,6 +6,7 @@ import { Home } from "./pages/Home.jsx";
 import { Portfolio } from "./pages/portfolio/Portfolio.jsx";
 import { Country } from "./pages/macro/Country.jsx";
 import { CountryRanking } from './pages/ranking/CountryRanking.jsx';
+import { IMFView } from './pages/country/IMFView.jsx';
 
 
 const router = createBrowserRouter(
@@ -17,6 +18,7 @@ const router = createBrowserRouter(
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/ranking" element={<CountryRanking />} />
+            <Route path="/imfview" element={<IMFView />} />
         </>
     ),
     { basename: import.meta.env.BASE_URL }
