@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-
-const config = require('./config.json');
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 export const CountryRanking = () => {
-    const { indicatorCode } = 'UIS.FEP.3';   //REPLACE w user search function result
+    const indicatorCode = 'UIS.FEP.3'; // Replace with user search function result if needed.
 
-    const [topCountriesData, setTopCountriesData] = useState([{}]);
+    const [topCountriesData, setTopCountriesData] = useState([]); // Initialize as an empty array
 
     useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/getTopCountriesEducation/${indicatorCode}`)
-            .then(res => res.json())
-            .then(resJson => setTopCountriesData(resJson));
+        fetch(`http://localhost:3000/getTopCountriesEducation/${indicatorCode}`)
+            .then((res) => res.json())
+            .then((resJson) => setTopCountriesData(resJson.education_info));
     }, [indicatorCode]);
 
     return (
@@ -21,23 +18,20 @@ export const CountryRanking = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell key='Country'>Country</TableCell>
-                            <TableCell key='Average Value'>Average Value</TableCell>
+                            <TableCell>Country</TableCell>
+                            <TableCell>Average Value</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {
-                            topCountriesData.map((row, i) => (
-                                <TableRow key={row.country_name}>
-                                    <TableCell key='Country'>{row.country_name}</TableCell>
-                                    <TableCell key='Average Value'>{row.val}</TableCell>
-                                </TableRow>
-                            ))
-
-                        }
+                        {topCountriesData.map((row, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{row.country_name}</TableCell>
+                                <TableCell>{row.val}</TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </TableContainer>
         </Container>
     );
-}
+};
