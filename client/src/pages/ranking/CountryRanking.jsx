@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-const config = require('../config.json');
+const config = require('./config.json');
 
 export const CountryRanking = () => {
     const { indicatorCode } = 'UIS.FEP.3';   //REPLACE w user search function result

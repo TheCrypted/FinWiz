@@ -5,6 +5,7 @@ import { SignUp } from "./pages/auth/SignUp.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Portfolio } from "./pages/portfolio/Portfolio.jsx";
 import { Country } from "./pages/macro/Country.jsx";
+import { CountryRanking } from './pages/ranking/CountryRanking.jsx';
 
 
 const router = createBrowserRouter(
