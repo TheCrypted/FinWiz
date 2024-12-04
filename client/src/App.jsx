@@ -1,10 +1,10 @@
 import './App.css'
-import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
-import {SignIn} from "./pages/auth/SignIn.jsx";
-import {SignUp} from "./pages/auth/SignUp.jsx";
-import {Home} from "./pages/Home.jsx";
-import {Portfolio} from "./pages/portfolio/Portfolio.jsx";
-import {Country} from "./pages/macro/Country.jsx";
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
+import { SignIn } from "./pages/auth/SignIn.jsx";
+import { SignUp } from "./pages/auth/SignUp.jsx";
+import { Home } from "./pages/Home.jsx";
+import { Portfolio } from "./pages/portfolio/Portfolio.jsx";
+import { Country } from "./pages/macro/Country.jsx";
 
 
 const router = createBrowserRouter(
@@ -15,6 +15,7 @@ const router = createBrowserRouter(
             <Route path="/country" element={<Country />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/ranking" element={<CountryRanking />} />
         </>
     ),
     { basename: import.meta.env.BASE_URL }
