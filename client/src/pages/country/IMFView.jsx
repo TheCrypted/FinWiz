@@ -44,8 +44,8 @@ export const IMFView = () => {
     <Container>
         <h1>STATS FOR AUSTRALIA</h1>
       <TableContainer>
+      <h2>IMF Indicator Average Values</h2>
         <Table>
-            <h2>IMF Indicator Comparative Performance</h2>
           <TableHead>
             <TableRow>
               <TableCell>Indicator Name</TableCell>
@@ -71,8 +71,8 @@ export const IMFView = () => {
         </Table>
       </TableContainer>
       <TableContainer>
+      <h2>IMF Indicator Comparative Performance</h2>
         <Table>
-        <h2>IMF Indicator Average Values</h2>
           <TableHead>
             <TableRow>
               <TableCell>Indicator Name</TableCell>

@@ -12,31 +12,31 @@ import {
 export const EducationView = () => {
   const country_name = "Australia";
   const [EducationValues, getEducationValues] = useState([]);
-//   const [IMFPerformance, getIMFPerformance] = useState([]);
+  const [PercentDifference, getPercentDifference] = useState([]);
 
-//   useEffect(() => {
-//     fetch(`http://localhost:3000/getIMFPerformance/${country_name}`)
-//       .then((res) => res.json())
-//       .then((resJson) => {
-//         console.log("API Response:", resJson); // Debugging
-//         getIMFPerformance(resJson.imf_performance || []); // Extract imf_info array
-//       })
-//       .catch((err) => {
-//         console.error("Error fetching IMF performance info:", err);
-//         getIMFPerformance([]); // Fallback to empty array on error
-//       });
-//   }, [country_name]);
+  useEffect(() => {
+    fetch(`http://localhost:3000/getPercentageDiffEducation/${country_name}`)
+      .then((res) => res.json())
+      .then((resJson) => {
+        console.log("API Response:", resJson); // Debugging
+        getPercentDifference(resJson.imf_performance || []); // Extract imf_info array
+      })
+      .catch((err) => {
+        console.error("Error fetching education percentage difference:", err);
+        getPercentDifference([]); // Fallback to empty array on error
+      });
+  }, [country_name]);
 
   useEffect(() => {
     fetch(`http://localhost:3000/getEducationInfo/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         console.log("API Response:", resJson); // Debugging
-        getIMFValues(resJson.imf_info || []); // Extract imf_info array
+        getEducationValues(resJson.education_info || []); // Extract imf_info array
       })
       .catch((err) => {
-        console.error("Error fetching IMF data:", err);
-        getIMFValues([]); // Fallback to empty array on error
+        console.error("Error fetching education data:", err);
+        getEducationValues([]); // Fallback to empty array on error
       });
   }, [country_name]);
 
@@ -44,8 +44,8 @@ export const EducationView = () => {
     <Container>
         <h1>STATS FOR AUSTRALIA</h1>
       <TableContainer>
+      <h2>Education Indicator Average Values</h2>
         <Table>
-            <h2>IMF Indicator Comparative Performance</h2>
           <TableHead>
             <TableRow>
               <TableCell>Indicator Name</TableCell>
@@ -53,11 +53,11 @@ export const EducationView = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(IMFValues) && IMFValues.length > 0 ? (
-              IMFValues.map((row, i) => (
+            {Array.isArray(EducationValues) && EducationValues.length > 0 ? (
+              EducationValues.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell>{row.indicator_name || "N/A"}</TableCell>
-                  <TableCell>{row.avg || "N/A"}</TableCell>
+                  <TableCell>{row.indicator_value || "N/A"}</TableCell>
                 </TableRow>
               ))
             ) : (
@@ -71,28 +71,24 @@ export const EducationView = () => {
         </Table>
       </TableContainer>
       <TableContainer>
+      <h2>Percentage Difference in Education Indicators from Previous Year</h2>
         <Table>
-        <h2>IMF Indicator Average Values</h2>
           <TableHead>
             <TableRow>
               <TableCell>Indicator Name</TableCell>
               <TableCell>Year</TableCell>
-              <TableCell>Country Average</TableCell>
-              <TableCell>Global Average</TableCell>
-              <TableCell>Percentage Point Difference</TableCell>
-              <TableCell>Performance Status</TableCell>
+              <TableCell>Value</TableCell>
+              <TableCell>Percentage Change</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(IMFPerformance) && IMFPerformance.length > 0 ? (
-              IMFPerformance.map((row, i) => (
+            {Array.isArray(PercentDifference) && PercentDifference.length > 0 ? (
+              PercentDifference.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell>{row.indicator_name || "N/A"}</TableCell>
                   <TableCell>{row.year || "N/A"}</TableCell>
-                  <TableCell>{row.country_average || "N/A"}</TableCell>
-                  <TableCell>{row.global_average || "N/A"}</TableCell>
-                  <TableCell>{row.percentage_point_difference || "N/A"}</TableCell>
-                  <TableCell>{row.performance_status || "N/A"}</TableCell>
+                  <TableCell>{row.education_value || "N/A"}</TableCell>
+                  <TableCell>{row.year_change || "N/A"}</TableCell>
                 </TableRow>
               ))
             ) : (
