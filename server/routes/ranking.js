@@ -179,11 +179,13 @@ module.exports = (pool) => {
 
 
     // Route for complex query 6
-    router.get("/getIncreasingIndicators", async (req, res) => {
+    router.get("/getIncreasingIndicators/:country_name", async (req, res) => {
         try {
+            const { country_name } = req.params;
+
             const result = await pool.query(
-                `
-                WITH RankedData AS (
+
+                `WITH RankedData AS (
                 SELECT
                     e.country_code,
                     e.indicator_code,
@@ -216,7 +218,6 @@ module.exports = (pool) => {
                 GROUP BY cy.country_code, cy.indicator_code
                 )
                 SELECT
-                c.country_name,
                 ei.indicator_name,
                 a.begin_year,
                 a.end_year
@@ -225,14 +226,18 @@ module.exports = (pool) => {
                 ON a.country_code = c.country_code
                 JOIN EducationIndicators ei
                 ON a.indicator_code = ei.indicator_code
-                ORDER BY c.country_name, ei.indicator_name;`);
+                WHERE c.country_name = $1
+                ORDER BY a.end_year-a.begin_year DESC
+                LIMIT 30;`,
+                [country_name]
+            );
 
             res.json({
-                inc_education_info: result.rows
+                improv_edu_info: result.rows
             });
         } catch (err) {
             console.error(err);
-            res.status(500).json({ message: "Error fetching improving education details" });
+            res.status(500).json({ message: "Error fetching improving edu details" });
         }
     });
 

@@ -6,7 +6,6 @@ export const CountryRanking = () => {
     const indicatorEduCode = 'UIS.FEP.3'; // Replace with user search function result
     const [topCountriesEduData, setTopCountriesEduData] = useState([]); // Initialize as an empty array
 
-
     //ranking table for top countries for a given imf indicator code 
     const indicatorIMFCode = 'PPPGDP'; // Replace with user search function result
     const [topCountriesIMFData, setTopCountriesIMFData] = useState([]);
@@ -14,6 +13,8 @@ export const CountryRanking = () => {
     //ranking table for combined education & imf performance
     //no search function needed
     const [topCountriesData, setTopCountriesData] = useState([]);
+
+    const countryName = 'Australia';
     const [improvedEduData, setImprovedEduData] = useState([]);
 
 
@@ -30,9 +31,9 @@ export const CountryRanking = () => {
             .then((res) => res.json())
             .then((resJson) => setTopCountriesData(resJson.rank_info));
 
-        fetch(`http://localhost:3000/getIncreasingIndicators`)
+        fetch(`http://localhost:3000/getIncreasingIndicators/${countryName}`)
             .then((res) => res.json())
-            .then((resJson) => setImprovedEduData(resJson.inc_education_info));
+            .then((resJson) => setImprovedEduData(resJson.improv_edu_info));
     }, [indicatorEduCode], [indicatorIMFCode]);
 
     return (
@@ -114,18 +115,16 @@ export const CountryRanking = () => {
             <TableContainer>
                 <Table>
                     <TableHead>
-                        <TableRow>                            
-                            <TableCell>Country</TableCell>
+                        <TableRow>
                             <TableCell>Indicator Name</TableCell>
                             <TableCell>Start Year</TableCell>
                             <TableCell>End Year</TableCell>
-                            
+
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {improvedEduData.map((row, index) => (
                             <TableRow key={index}>
-                                <TableCell>{row.country_name}</TableCell>
                                 <TableCell>{row.indicator_name}</TableCell>
                                 <TableCell>{row.begin_year}</TableCell>
                                 <TableCell>{row.end_year}</TableCell>
