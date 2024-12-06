@@ -23,6 +23,21 @@ module.exports = (pool) => {
         }
     })
 
+    router.get("/equity", async (req, res) => {
+        try {
+            const {prefix} = req.query;
+
+            const result = await pool.query(
+                "SELECT * FROM stock_desc WHERE ticker LIKE $1 LIMIT 10",
+                [prefix + '%']
+            );
+
+            res.json({equities: result.rows});
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({message: "Error fetching related equities"});
+        }
+    })
 
     return router;
 };

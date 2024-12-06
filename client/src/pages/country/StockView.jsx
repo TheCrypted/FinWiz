@@ -1,55 +1,110 @@
-import { useEffect, useState } from 'react';
-import { Container, Divider, Link } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+// UPDATE !!!
 
-// const config = require('./config.json');
+import { useEffect, useState } from "react";
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 
 export const StockView = () => {
-  // We use the setState hook to persist information across renders (such as the result of our API calls)
-  // const [countryName, setCountryName] = useState({});
+  const country_name = "Australia";
+  const [EducationValues, getEducationValues] = useState([]);
+  const [PercentDifference, getPercentDifference] = useState([]);
 
-//   useEffect(() => {
+  useEffect(() => {
+    fetch(`http://localhost:3000/getPercentageDiffEducation/${country_name}`)
+      .then((res) => res.json())
+      .then((resJson) => {
+        console.log("API Response:", resJson); // Debugging
+        getPercentDifference(resJson.imf_performance || []); // Extract imf_info array
+      })
+      .catch((err) => {
+        console.error("Error fetching education percentage difference:", err);
+        getPercentDifference([]); // Fallback to empty array on error
+      });
+  }, [country_name]);
 
-//     // fetch country name 
-//     // fetch(`http://${config.server_host}:${config.server_port}/random`)
-//     //   .then(res => res.json())
-//     //   .then(resJson => setSongOfTheDay(resJson));
-//   };
-
-const country_name = "Australia";
-
-const [IMFValues, getIMFValues] = useState([{}]);
-
-    useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/getIMFInfo/${country_name}`)
-            .then(res => res.json())
-            .then(resJson => getIMFValues(resJson));
-    }, [country_name]);
+  useEffect(() => {
+    fetch(`http://localhost:3000/getEducationInfo/${country_name}`)
+      .then((res) => res.json())
+      .then((resJson) => {
+        console.log("API Response:", resJson); // Debugging
+        getEducationValues(resJson.education_info || []); // Extract imf_info array
+      })
+      .catch((err) => {
+        console.error("Error fetching education data:", err);
+        getEducationValues([]); // Fallback to empty array on error
+      });
+  }, [country_name]);
 
   return (
     <Container>
-    <TableContainer>
+        <h1>STATS FOR AUSTRALIA</h1>
+      <TableContainer>
+      <h2>Education Indicator Average Values</h2>
         <Table>
-            <TableHead>
-                <TableRow>
-                    <TableCell key='Indicator Name'>Indicator Name</TableCell>
-                    <TableCell key='Indicator Value'>Indicator Value</TableCell>
+          <TableHead>
+            <TableRow>
+              <TableCell>Indicator Name</TableCell>
+              <TableCell>Indicator Value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(EducationValues) && EducationValues.length > 0 ? (
+              EducationValues.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell>{row.indicator_name || "N/A"}</TableCell>
+                  <TableCell>{row.indicator_value || "N/A"}</TableCell>
                 </TableRow>
-            </TableHead>
-            <TableBody>
-                {
-                    IMFValues.map((row, i) => (
-                        <TableRow key={row.indicator_name}>
-                            <TableCell key='Indicator Name'>{row.indicator_name}</TableCell>
-                            <TableCell key='Indicator Value'>{row.avg}</TableCell>
-                        </TableRow>
-                    ))
-                }
-            </TableBody>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
         </Table>
-    </TableContainer>
+      </TableContainer>
+      <TableContainer>
+      <h2>Percentage Difference in Education Indicators from Previous Year</h2>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Indicator Name</TableCell>
+              <TableCell>Year</TableCell>
+              <TableCell>Value</TableCell>
+              <TableCell>Percentage Change</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(PercentDifference) && PercentDifference.length > 0 ? (
+              PercentDifference.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell>{row.indicator_name || "N/A"}</TableCell>
+                  <TableCell>{row.year || "N/A"}</TableCell>
+                  <TableCell>{row.education_value || "N/A"}</TableCell>
+                  <TableCell>{row.year_change || "N/A"}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={2} align="center">
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Container>
   );
-}
+};
 
 export default StockView;

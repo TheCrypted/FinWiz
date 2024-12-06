@@ -8,6 +8,8 @@ import { Country } from "./pages/macro/Country.jsx";
 import { CountryRanking } from './pages/ranking/CountryRanking.jsx';
 import { IMFView } from './pages/country/IMFView.jsx';
 import { EducationView } from './pages/country/EducationView.jsx';
+import { StockView } from './pages/country/StockView.jsx';
+import { SimilarView } from './pages/country/SimilarView.jsx';
 
 
 const router = createBrowserRouter(
@@ -21,6 +23,8 @@ const router = createBrowserRouter(
             <Route path="/ranking" element={<CountryRanking />} />
             <Route path="/imfview" element={<IMFView />} />
             <Route path="/educationview" element={<EducationView />} />
+            <Route path="/stockview" element={<StockView />} />
+            <Route path="/similarview" element={<SimilarView />} />
         </>
     ),
     { basename: import.meta.env.BASE_URL }

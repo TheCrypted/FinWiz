@@ -11,7 +11,7 @@ module.exports = (pool) => {
         try {
             const result = await pool.query(
                 "SELECT user_id, email, capital, username FROM Users WHERE user_id = $1",
-                [req.user.userId]
+                [req.user.user_id]
             );
 
             if (result.rows.length === 0) {
@@ -33,8 +33,8 @@ module.exports = (pool) => {
         try {
             const hashedPassword = await hash(password, 10);
             const result = await pool.query(
-                "INSERT INTO Users (user_id, email, username, password) VALUES ($1, $2, $3, $4) RETURNING *",
-                [Date.now().toString(), email, username, hashedPassword]
+                "INSERT INTO Users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
+                [email, username, hashedPassword]
             );
             res.status(201).json({ message: "User registered successfully", user: result.rows[0] });
         } catch (err) {

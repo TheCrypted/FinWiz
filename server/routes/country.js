@@ -8,7 +8,7 @@ module.exports = (pool) => {
             const {country_name} = req.params;
 
             const result = await pool.query(
-                "SELECT i.indicator_name, AVG(e.value) AS indicator_value FROM Country c JOIN Education e ON e.country_code = c.country_code JOIN EducationIndicators i ON e.indicator_code = i.indicator_code WHERE c.country_name LIKE $1 GROUP BY i.indicator_name",
+                "SELECT i.indicator_name, AVG(e.value) AS indicator_value FROM Country c JOIN Education e ON e.country_code = c.country_code JOIN EducationIndicators i ON e.indicator_code = i.indicator_code WHERE c.country_name LIKE $1 GROUP BY i.indicator_name ORDER BY i.indicator LIMIT 10",
                 [country_name]
             )
 
