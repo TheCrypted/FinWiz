@@ -8,7 +8,7 @@ module.exports = (pool) => {
             const {country_name} = req.params;
 
             const result = await pool.query(
-                "SELECT i.indicator_name, AVG(e.value) AS indicator_value FROM Country c JOIN Education e ON e.country_code = c.country_code JOIN EducationIndicators i ON e.indicator_code = i.indicator_code WHERE c.country_name LIKE $1 GROUP BY i.indicator_name ORDER BY i.indicator LIMIT 10",
+                "SELECT i.indicator_name, AVG(e.value) AS indicator_value FROM Country c JOIN Education e ON e.country_code = c.country_code JOIN EducationIndicators i ON e.indicator_code = i.indicator_code WHERE c.country_name LIKE $1 GROUP BY i.indicator_name ORDER BY i.indicator_name LIMIT 10",
                 [country_name]
             )
 
@@ -142,7 +142,7 @@ module.exports = (pool) => {
             const {country_name} = req.params;
 
             const result = await pool.query(
-                "WITH education_change AS (SELECT e.country_code, e.indicator_code, e.year, e.value, LAG(e.value) OVER (PARTITION BY e.country_code, e.indicator_code ORDER BY e.year) AS prev FROM education e WHERE e.year BETWEEN 2000 AND 2020) SELECT ei.indicator_name, ec.year, ec.value AS education_value, CASE WHEN ec.prev IS NULL OR ec.prev = 0 THEN NULL ELSE (ec.value - ec.prev) / ec.prev * 100 END AS year_change FROM education_change ec JOIN country c ON ec.country_code = c.country_code JOIN educationindicators ei ON ec.indicator_code = ei.indicator_code WHERE c.country_name = $1 AND ec.prev > 0 AND ec.year = 2020 ORDER BY ec.year DESC",
+                "WITH education_change AS (SELECT e.country_code, e.indicator_code, e.year, e.value, LAG(e.value) OVER (PARTITION BY e.country_code, e.indicator_code ORDER BY e.year) AS prev FROM education e WHERE e.year BETWEEN 2000 AND 2020) SELECT ei.indicator_name, ec.year, ec.value AS education_value, CASE WHEN ec.prev IS NULL OR ec.prev = 0 THEN NULL ELSE (ec.value - ec.prev) / ec.prev * 100 END AS year_change FROM education_change ec JOIN country c ON ec.country_code = c.country_code JOIN educationindicators ei ON ec.indicator_code = ei.indicator_code WHERE c.country_name = $1 AND ec.prev > 0 AND ec.year = 2020 ORDER BY ec.year DESC LIMIT 10",
                 [country_name]
             )
 

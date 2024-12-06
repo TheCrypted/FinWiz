@@ -1,5 +1,3 @@
-// UPDATE !!!
-
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -12,90 +10,68 @@ import {
 } from "@mui/material";
 
 export const StockView = () => {
-  const country_name = "Australia";
-  const [EducationValues, getEducationValues] = useState([]);
-  const [PercentDifference, getPercentDifference] = useState([]);
+  const country_name = "Canada";
+  const [SummaryStockInfo, getSummaryStockInfo] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getPercentageDiffEducation/${country_name}`)
-      .then((res) => res.json())
+    fetch(`http://localhost:3000/getSummaryStockInfo/${country_name}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((resJson) => {
-        console.log("API Response:", resJson); // Debugging
-        getPercentDifference(resJson.imf_performance || []); // Extract imf_info array
+        console.log("API Response for Summary Stock Info:", resJson);
+        if (resJson.summary_stock_info) {
+          getSummaryStockInfo(resJson.summary_stock_info);
+          console.log("Updated State with:", resJson.summary_stock_info);
+        } else {
+          console.error("API response does not contain stock_info");
+          getSummaryStockInfo([]); // Fallback
+        }
       })
       .catch((err) => {
-        console.error("Error fetching education percentage difference:", err);
-        getPercentDifference([]); // Fallback to empty array on error
-      });
-  }, [country_name]);
-
-  useEffect(() => {
-    fetch(`http://localhost:3000/getEducationInfo/${country_name}`)
-      .then((res) => res.json())
-      .then((resJson) => {
-        console.log("API Response:", resJson); // Debugging
-        getEducationValues(resJson.education_info || []); // Extract imf_info array
-      })
-      .catch((err) => {
-        console.error("Error fetching education data:", err);
-        getEducationValues([]); // Fallback to empty array on error
+        console.error("Error fetching stock information:", err);
+        getSummaryStockInfo([]); // Fallback
       });
   }, [country_name]);
 
   return (
     <Container>
-        <h1>STATS FOR AUSTRALIA</h1>
+      <h1>STATS FOR CANADA</h1>
       <TableContainer>
-      <h2>Education Indicator Average Values</h2>
+        <h2>Stock Information</h2>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Indicator Name</TableCell>
-              <TableCell>Indicator Value</TableCell>
+              <TableCell>Industry</TableCell>
+              <TableCell>Company Count</TableCell>
+              <TableCell>Average Open Price</TableCell>
+              <TableCell>Average Close Price</TableCell>
+              <TableCell>Minimum Close Price</TableCell>
+              <TableCell>Maximum Close Price</TableCell>
+              <TableCell>YOY Close Growth</TableCell>
+              <TableCell>High Volatility Count</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(EducationValues) && EducationValues.length > 0 ? (
-              EducationValues.map((row, i) => (
+            {Array.isArray(SummaryStockInfo) && SummaryStockInfo.length > 0 ? (
+              SummaryStockInfo.map((row, i) => (
                 <TableRow key={i}>
-                  <TableCell>{row.indicator_name || "N/A"}</TableCell>
-                  <TableCell>{row.indicator_value || "N/A"}</TableCell>
+                  <TableCell>{row.industry || "N/A"}</TableCell>
+                  <TableCell>{row.company_count || "N/A"}</TableCell>
+                  <TableCell>{row.avg_open_price || "N/A"}</TableCell>
+                  <TableCell>{row.avg_close_price || "N/A"}</TableCell>
+                  <TableCell>{row.min_close_price || "N/A"}</TableCell>
+                  <TableCell>{row.max_close_price || "N/A"}</TableCell>
+                  <TableCell>{row.yoy_close_growth || "N/A"}</TableCell>
+                  <TableCell>{row.high_volatility_count || "N/A"}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} align="center">
-                  No data available
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TableContainer>
-      <h2>Percentage Difference in Education Indicators from Previous Year</h2>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Indicator Name</TableCell>
-              <TableCell>Year</TableCell>
-              <TableCell>Value</TableCell>
-              <TableCell>Percentage Change</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.isArray(PercentDifference) && PercentDifference.length > 0 ? (
-              PercentDifference.map((row, i) => (
-                <TableRow key={i}>
-                  <TableCell>{row.indicator_name || "N/A"}</TableCell>
-                  <TableCell>{row.year || "N/A"}</TableCell>
-                  <TableCell>{row.education_value || "N/A"}</TableCell>
-                  <TableCell>{row.year_change || "N/A"}</TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={2} align="center">
+                <TableCell colSpan={8} align="center">
                   No data available
                 </TableCell>
               </TableRow>

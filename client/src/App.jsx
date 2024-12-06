@@ -10,6 +10,7 @@ import { IMFView } from './pages/country/IMFView.jsx';
 import { EducationView } from './pages/country/EducationView.jsx';
 import { StockView } from './pages/country/StockView.jsx';
 import { SimilarView } from './pages/country/SimilarView.jsx';
+import { CountryMain } from './pages/country/CountryMain.jsx';
 
 
 const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
             <Route path="/educationview" element={<EducationView />} />
             <Route path="/stockview" element={<StockView />} />
             <Route path="/similarview" element={<SimilarView />} />
+            <Route path="/countrymain" element={<CountryMain />} />
         </>
     ),
     { basename: import.meta.env.BASE_URL }

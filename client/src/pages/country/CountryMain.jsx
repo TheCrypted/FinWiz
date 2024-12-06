@@ -4,7 +4,7 @@ import { indigo, amber } from '@mui/material/colors'
 import { createTheme } from "@mui/material/styles";
 
 import NavBar from '../../components/NavBar.jsx';
-import Home from '../Home.jsx';
+// import Home from '../Home.jsx';
 import IMFView from './IMFView.jsx';
 import EducationView from './EducationView.jsx';
 import StockView from './StockView.jsx';
@@ -27,16 +27,14 @@ export const CountryMain = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
           <Route path="/imfview" element={<IMFView />} />
           <Route path="/educationview" element={<EducationView />} />
           <Route path="/stockview" element={<StockView />} />
           <Route path="/similarview" element={<SimilarView />} />
         </Routes>
-      </BrowserRouter>
     </ThemeProvider>
   );
 }
