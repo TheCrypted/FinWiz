@@ -19,15 +19,23 @@ export const EducationView = () => {
     fetch(`http://localhost:3000/getPercentageDiffEducation/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
-        console.log("API Response:", resJson); // Debugging
-        getPercentDifference(resJson.imf_performance || []); // Extract imf_info array
+        console.log("API Response for Percentage Difference:", resJson);
+        if (resJson.percentage_difference) {
+          getPercentDifference(resJson.percentage_difference); // Correct key
+          console.log("Updated State with:", resJson.percentage_difference);
+        } else {
+          console.error("API response does not contain percentage_difference");
+          getPercentDifference([]); // Fallback
+        }
       })
       .catch((err) => {
-        console.error("Error fetching education percentage difference:", err);
-        getPercentDifference([]); // Fallback to empty array on error
+        console.error("Error fetching percentage difference:", err);
+        getPercentDifference([]); // Fallback
       });
   }, [country_name]);
 
+  console.log("PercentDifference State:", PercentDifference);
+  
   useEffect(() => {
     fetch(`http://localhost:3000/getEducationInfo/${country_name}`)
       .then((res) => res.json())
@@ -39,7 +47,9 @@ export const EducationView = () => {
         console.error("Error fetching education data:", err);
         getEducationValues([]); // Fallback to empty array on error
       });
+  }, [country_name]);
 
+  useEffect(() => {
     fetch(`http://localhost:3000/getIncreasingIndicators/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => setImprovedEduData(resJson.improv_edu_info));
@@ -87,7 +97,7 @@ export const EducationView = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(PercentDifference) && PercentDifference.length > 0 ? (
+            {PercentDifference ? (
               PercentDifference.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell>{row.indicator_name || "N/A"}</TableCell>
@@ -115,7 +125,6 @@ export const EducationView = () => {
               <TableCell>Indicator Name</TableCell>
               <TableCell>Start Year</TableCell>
               <TableCell>End Year</TableCell>
-
             </TableRow>
           </TableHead>
           <TableBody>
