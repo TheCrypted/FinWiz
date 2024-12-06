@@ -1,5 +1,5 @@
 const {verify} = require("jsonwebtoken");
-
+// verify
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];

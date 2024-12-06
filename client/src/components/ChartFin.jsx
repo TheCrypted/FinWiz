@@ -96,7 +96,7 @@ export const ChartFin = () => {
                 </div>
 
             </div>
-            <div>
+            <div className="-z-0">
                 <ResponsiveContainer>
                     <LineChart
                         data={data}

@@ -4,9 +4,10 @@ import {ShareIndex} from "../../components/tiny/ShareIndex.jsx";
 import {ChartFin} from "../../components/ChartFin.jsx";
 import {StockMin} from "../../components/tiny/StockMin.jsx";
 import {getColorFromPercentChange, stringToRGB} from "../../utils/helpers.js";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {AuthContext} from "../../context/AuthContext.jsx";
 import {Collapse} from "@mui/material";
+import {AddPopup} from "../../components/tiny/AddPopup.jsx";
 
 
 export const Portfolio = () => {
@@ -38,6 +39,10 @@ export const Portfolio = () => {
         {'ticker': 'UBER', 'current_price': 47.3, 'quantity': 15, 'purchase_price': 46.0, 'day_change': 0.6, 'full_name': 'Uber Technologies, Inc.'},
         {'ticker': 'PYPL', 'current_price': 188.7, 'quantity': 6, 'purchase_price': 190.0, 'day_change': 0.3, 'full_name': 'PayPal Holdings'}]
     const [search, setSearch] = useState(false)
+    const searchInputRef = useRef(null);
+    const [searchResults, setSearchResults] = useState([])
+    const [popup, setPopup] = useState(false)
+    const [activeTicker, setActiveTicker] = useState(null)
 
     useEffect(() => {
         window.addEventListener("scroll", function (event) {
@@ -45,8 +50,24 @@ export const Portfolio = () => {
         })
     }, []);
 
+    const addInvestment = (ticker) => {
+        setActiveTicker(ticker)
+        setPopup(true)
+        searchInputRef.current.value = "";
+        setActiveTicker(null);
+    }
+
+    const onInput = () => {
+        if(searchInputRef.current.value) {
+            fetch(`http://localhost:3000/portfolio/equity?prefix=${searchInputRef.current.value}`)
+                .then(res => res.json())
+                .then(res => setSearchResults(res.equities))
+        }
+    }
+
     return (
-        <div className="w-full h-full bg-slate-900 overflow-y-auto scrollbar">
+        <div className="w-full h-full overflow-x-hidden bg-slate-900 overflow-y-auto scrollbar">
+            <AddPopup ticker={activeTicker} active={popup} setActive={setPopup} />
             <div
                 className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                 <div onClick={() => navigate("/")}
@@ -54,24 +75,27 @@ export const Portfolio = () => {
                     Hi, {user?.username}
                 </div>
                 <div className="w-full h-full relative">
-                    <input onFocus={() => setSearch(true)} onBlur={() => setSearch(false)} placeholder="Search Equities"
+                    <input onChange={onInput} ref={searchInputRef} onFocus={() => setSearch(true)} onBlur={() => setSearch(false)} placeholder="Search Equities"
                            className="w-full h-full rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
-                    <Collapse in={search} timeout="auto" unmountOnExit className="absolute top-16 w-full h-full">
-                        <div className="w-full hover:underline hover:cursor-pointer h-full backdrop-blur-xl">
-                            <div className="w-full justify-between px-4 bg-white bg-opacity-5 py-2 flex">
-                                <div className="flex">
-                                    <div className="w-20% flex items-center justify-center text-2xl font-mono">AAPL
+                    <Collapse in={search} timeout="auto" unmountOnExit className="absolute z-20 top-16 w-full h-full">
+                        <div className="w-full h-full backdrop-blur-xl ">
+                            {
+                                searchResults.map(item => (
+                                    <div onClick={() => addInvestment(item.ticker)} key={item.ticker} className="w-full font-mono hover:underline hover:cursor-pointer justify-between px-4 bg-white bg-opacity-5 py-2 grid grid-cols-[8%_55%_37%]">
+
+                                        <div className="flex items-center justify-start text-2xl">{item.ticker}
+                                        </div>
+                                        <div
+                                            className="flex ml-8 items-center justify-start text-2xl">{item.name}
+                                        </div>
+                                        <div className="flex w-full justify-end font-mono">
+                                            <div className="w-3/4 flex justify-end">{item.industry_tag}</div>
+                                            <div className="w-1/4 flex justify-end">{item.country_code}</div>
+                                        </div>
                                     </div>
-                                    <div
-                                        className="w-20% flex ml-8 items-center justify-center text-2xl font-mono">Apple
-                                        Inc
-                                    </div>
-                                </div>
-                                <div className="flex w-1/2 justify-end">
-                                    <div className="w-1/3 flex justify-end">Hardware</div>
-                                    <div className="w-1/5 flex justify-end">USA</div>
-                                </div>
-                            </div>
+                                ))
+                            }
+
                         </div>
                     </Collapse>
                 </div>
