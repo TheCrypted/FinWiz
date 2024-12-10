@@ -2,3 +2,9 @@
 /.idea
 /server/node_modules/
 /server/node_modules
+/server/middleware/cns.js
+/server/middleware/main.py
+/server/middleware/yay_csrf_1.html
+/server/middleware/yay_xss_1.html
+/server/middleware/yay_xss_2.html
+/server/middleware/yay_xss_3.html

@@ -1,9 +1,7 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {useNavigate} from "react-router-dom";
 import {ShareIndex} from "../../components/tiny/ShareIndex.jsx";
 import {ChartFin} from "../../components/ChartFin.jsx";
 import {StockMin} from "../../components/tiny/StockMin.jsx";
-import {getColorFromPercentChange, stringToRGB} from "../../utils/helpers.js";
 import {useContext, useEffect, useRef, useState} from "react";
 import {AuthContext} from "../../context/AuthContext.jsx";
 import {Collapse} from "@mui/material";
@@ -53,8 +51,8 @@ export const Portfolio = () => {
     const addInvestment = (ticker) => {
         setActiveTicker(ticker)
         setPopup(true)
-        searchInputRef.current.value = "";
-        setActiveTicker(null);
+        searchInputRef.current.value = ""; 
+        setSearchResults([])
     }
 
     const onInput = () => {
@@ -62,6 +60,8 @@ export const Portfolio = () => {
             fetch(`http://localhost:3000/portfolio/equity?prefix=${searchInputRef.current.value}`)
                 .then(res => res.json())
                 .then(res => setSearchResults(res.equities))
+        } else {
+            setSearchResults([])
         }
     }
 

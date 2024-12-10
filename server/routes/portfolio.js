@@ -5,6 +5,7 @@ const router = express.Router();
 
 module.exports = (pool) => {
 
+    // GET stocks that user currently owns
     router.get("/investments", verifyToken, async (req, res) => {
         try {
             const {user_id} = req.user;
@@ -23,6 +24,7 @@ module.exports = (pool) => {
         }
     })
 
+    // GET available stocks in dataset
     router.get("/equity", async (req, res) => {
         try {
             const {prefix} = req.query;
@@ -39,6 +41,7 @@ module.exports = (pool) => {
         }
     })
 
+    // POST add a stock purchase that the user has made
     router.post("/investment", verifyToken, async (req, res) => {
         try {
             const {user_id} = req.user;
@@ -62,6 +65,32 @@ module.exports = (pool) => {
             console.log(e)
             res.status(500).json({message: "Error while adding investment"});
         }
+    })
+
+    router.get("/equity/:id", async (req, res) => {
+        try {
+            let ticker = req.params.id;
+            let num_results = parseInt(req.query.expected, 10) || 1;
+
+            const verify_valid = await pool.query(
+                "SELECT COUNT(*) FROM stock_desc WHERE ticker = $1", [ticker]
+            )
+
+            if(verify_valid.rows[0].count === 0) {
+                return res.status(404).json({message: "Equity not found in database"})
+            }
+
+            const result = await pool.query(
+                "SELECT * FROM equities WHERE ticker = $1 ORDER BY date DESC LIMIT $2",
+                [ticker, num_results]
+            );
+
+            return res.status(200).json({equities: result.rows})
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({message: "Error fetching equity prices"})
+        }
+
     })
 
     // SELECT open from stock_price WHERE ticker = 'CSCO' ORDER BY date DESC LIMIT 1;
