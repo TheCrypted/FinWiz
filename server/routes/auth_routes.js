@@ -61,7 +61,7 @@ module.exports = (pool) => {
             const accessToken = sign(
                 { user_id: user.user_id },
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: "60m" }
+                { expiresIn: "120m" }
             );
 
             const refreshToken = sign(

@@ -6,7 +6,6 @@ import {InfoCard} from "../components/InfoCard.jsx";
 import ReactTextTransition, { presets } from "react-text-transition";
 import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
-import {jwtDecode} from "jwt-decode";
 
 export const Home = () => {
     const containerRef = useRef(null);
@@ -18,15 +17,8 @@ export const Home = () => {
     const [selectedPolygon, setSelectedPolygon] = useState(null);
     const { user, authTokens, login, logout } = useContext(AuthContext);
 
-    const [factCard, setFactCard] = useState([
-        {indicator_name: "Employment", value: 20},
-        {indicator_name: "GDP at Current Prices", value: 2605},
-        {indicator_name: "Gross National Savings", value: 21},
-        {indicator_name: "Inflation Index", value: 174},
-        {indicator_name: "Population", value: 42},
-        {indicator_name: "Total Investment", value: 23},
-        {indicator_name: "Unemployment Rate", value: 6},
-    ]);
+    const [factCard, setFactCard] = useState([]);
+    const [secondfactCard, setSecFactCard] = useState([]);
 
     function colorGrade(value) {
         if (value < -50 || value > 200) {
@@ -44,9 +36,44 @@ export const Home = () => {
 
     useEffect(() => {
         if(!selectedPolygon) return;
-        fetch(`http://localhost:3000/imf/summary?country=${selectedPolygon?.properties.adm0_iso}`)
-            .then(res => res.json())
-            .then(res => setFactCard(res))
+
+        fetch(`http://localhost:3000/getIMFInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
+            method: "GET"
+        }).then(res => res.json())
+            .then(res => {
+                let new_fact_card_temp = {}
+                for (const {avg, indicator_name} of res.imf_info) {
+                    new_fact_card_temp[indicator_name] = avg;
+                }
+
+                let new_fact_card = [
+                    {indicator_name: "Account Balance", value: new_fact_card_temp["Current Account Balance, % of GDP"]},
+                    {indicator_name: "Net Exports", value: new_fact_card_temp["Exports of Goods and services, % change"]},
+                    {indicator_name: "GDP in USD(Billions)", value: new_fact_card_temp["GDP at Current Prices, USD Billions"]}
+                ];
+
+                setFactCard(new_fact_card)
+            })
+            .catch(err => console.error(err))
+
+        fetch(`http://localhost:3000/getEducationInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
+            method: "GET"
+        }).then(res => res.json())
+            .then(res => {
+                console.log(res)
+                let new_fact_card_temp = {}
+                for (const {indicator_value, indicator_name} of res.education_info) {
+                    new_fact_card_temp[indicator_name] = indicator_value;
+                }
+
+                let new_fact_card = [
+                    {indicator_name: "Enrolment Rate", value: new_fact_card_temp["Adjusted net enrolment rate, primary, gender parity index (GPI)"] * 100},
+                    {indicator_name: "Female Enrolment", value: new_fact_card_temp["Adjusted net enrolment rate, primary, female (%)"]}
+                ];
+
+                setSecFactCard(new_fact_card)
+            })
+            .catch(err => console.error(err))
 
     }, [selectedPolygon]);
 
@@ -185,7 +212,7 @@ export const Home = () => {
                 globeEl.current.controls().autoRotate = true;
             }} className="w-1/4 h-full flex right-0 items-end absolute">
                 <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
-                    <InfoCard factCard={factCard.slice(4, 8)} key={1} right={true} country={selectedPolygon?.properties.adm0_iso}/>
+                    <InfoCard factCard={secondfactCard} key={1} right={true} country={selectedPolygon?.properties.adm0_iso}/>
                 </div>
             </div>}
         </div>

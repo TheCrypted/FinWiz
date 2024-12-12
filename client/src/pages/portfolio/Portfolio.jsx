@@ -36,16 +36,34 @@ export const Portfolio = () => {
         {'ticker': 'LLOY', 'current_price': 2.3, 'quantity': 100, 'purchase_price': 2.5, 'day_change': -0.05, 'full_name': 'Lloyds Banking Group plc'},
         {'ticker': 'UBER', 'current_price': 47.3, 'quantity': 15, 'purchase_price': 46.0, 'day_change': 0.6, 'full_name': 'Uber Technologies, Inc.'},
         {'ticker': 'PYPL', 'current_price': 188.7, 'quantity': 6, 'purchase_price': 190.0, 'day_change': 0.3, 'full_name': 'PayPal Holdings'}]
+    const [userInvestments, setUserInvestments] = useState([])
     const [search, setSearch] = useState(false)
     const searchInputRef = useRef(null);
     const [searchResults, setSearchResults] = useState([])
     const [popup, setPopup] = useState(false)
     const [activeTicker, setActiveTicker] = useState(null)
 
+    const getInvestments = () => {
+        fetch("http://localhost:3000/portfolio/investment", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${authTokens.access}`,
+            }
+        }).then(res => res.json())
+            .then(res => setUserInvestments(res.investments))
+            .catch(e => console.log(e))
+    }
+
     useEffect(() => {
         window.addEventListener("scroll", function (event) {
             setSearch(false)
         })
+        if(!authTokens?.access) {
+            navigate("/signin")
+        }
+        getInvestments();
+
     }, []);
 
     const addInvestment = (ticker) => {
@@ -181,13 +199,14 @@ export const Portfolio = () => {
                             className="w-full p-2 border-b border-white font-mono border-opacity-10 text-white h-auto grid grid-cols-[10%_40%_10%_10%_10%_10%_10%]">
                             <div className="flex items-center justify-center opacity-50">SYMBOL</div>
                             <div className="flex items-center pl-4 opacity-50">NAME</div>
-                            <div className="flex items-center justify-end  opacity-50">PRICE</div>
+                            <div className="flex items-center justify-end  opacity-50">PURCHASE</div>
                             <div className="flex items-center justify-end  opacity-50">QUANTITY</div>
-                            <div className="flex items-center justify-center  opacity-50">GAIN</div>
-                            <div className="flex items-center justify-end  opacity-50">VALUE</div>
+                            <div className="flex items-center justify-end  opacity-50">GAIN</div>
+                            <div className="flex items-center justify-end opacity-50">PRICE</div>
+                            <div className="flex items-center justify-end  opacity-50">P/L</div>
                         </div>
                         {
-                            stocks.map((item) => <StockMin data={item}/>)
+                            userInvestments?.map((item) => <StockMin data={item}/>)
                         }
                     </div>
                 </div>

@@ -5,13 +5,36 @@ const router = express.Router();
 
 module.exports = (pool) => {
 
-    // GET stocks that user currently owns
-    router.get("/investments", verifyToken, async (req, res) => {
+    // GET stocks that the user currently owns
+    router.get("/investment", verifyToken, async (req, res) => {
         try {
             const {user_id} = req.user;
 
             const result = await pool.query(
-                "SELECT * FROM investment WHERE user_id = $1",
+                `
+                    WITH latest_price AS (
+                        SELECT
+                            e.ticker,
+                            e.date AS last_price_date,
+                            e.open AS last_price
+                        FROM equities e
+                        WHERE (e.ticker, e.date) IN (
+                            SELECT ticker, MAX(date)
+                            FROM equities
+                            GROUP BY ticker
+                        )
+                    )
+                    SELECT
+                        i.user_id, i.ticker, i.amount, i.purchase_date, e.open AS purchase_price, eq.name AS equity_name, lp.last_price, e.industry
+                    FROM investment i
+                             JOIN equities e
+                                  ON i.ticker = e.ticker AND i.purchase_date = e.date
+                             JOIN latest_price lp
+                                  ON i.ticker = lp.ticker
+                             JOIN equities eq
+                                  ON i.ticker = eq.ticker AND eq.date = lp.last_price_date
+                    WHERE i.user_id = $1;
+                `,
                 [user_id]
             )
 
@@ -47,6 +70,10 @@ module.exports = (pool) => {
             const {user_id} = req.user;
             const {date, amount, ticker} = req.body;
 
+            if(!date || !amount || !ticker) {
+                return res.status(401).json({ message: "Invalid request" });
+            }
+
             const verify_valid = await pool.query(
                 "SELECT COUNT(*) FROM stock_desc WHERE ticker = $1", [ticker]
             )
@@ -57,7 +84,7 @@ module.exports = (pool) => {
 
             const result = await pool.query(
                 "INSERT INTO investment (purchase_date, amount, user_id, ticker) VALUES ($1, $2, $3, $4) RETURNING *",
-                [new Date(), amount, user_id, ticker]
+                [date, amount, user_id, ticker]
             )
 
             return res.status(200).json({message: "Successfully added investment", result})
@@ -67,6 +94,7 @@ module.exports = (pool) => {
         }
     })
 
+    // Get information about last n days of equity movement
     router.get("/equity/:id", async (req, res) => {
         try {
             let ticker = req.params.id;
@@ -93,6 +121,6 @@ module.exports = (pool) => {
 
     })
 
-    // SELECT open from stock_price WHERE ticker = 'CSCO' ORDER BY date DESC LIMIT 1;
+
     return router;
 };

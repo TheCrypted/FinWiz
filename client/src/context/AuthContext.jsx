@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const tokens = JSON.parse(localStorage.getItem('authTokens'));
         if(tokens) {
-            getUser(localStorage.getItem(tokens.access))
+            getUser(tokens.access)
         }
     }, [])
 
@@ -89,11 +89,11 @@ export const AuthProvider = ({ children }) => {
                     .then(res => setUser(res.user))
                 localStorage.setItem('authTokens', JSON.stringify(data));
             } else {
-                logout();
+                // logout();
             }
         } catch (error) {
             console.error('Token refresh error:', error);
-            logout();
+            // logout();
         }
     };
 

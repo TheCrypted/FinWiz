@@ -22,8 +22,8 @@ const router = createBrowserRouter(
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/ranking" element={<CountryRanking />} />
-            <Route path="/imfview" element={<IMFView />} />
-            <Route path="/educationview" element={<EducationView />} />
+            <Route path="/imfview/:country_name" element={<IMFView />} />
+            <Route path="/educationview/:country_name" element={<EducationView />} />
             <Route path="/stockview" element={<StockView />} />
             <Route path="/similarview" element={<SimilarView />} />
             <Route path="/countrymain" element={<CountryMain />} />

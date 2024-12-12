@@ -1,11 +1,13 @@
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import DatePicker from "react-date-picker";
+import {AuthContext} from "../../context/AuthContext.jsx";
 
 export const AddPopup = ({ticker, active, setActive}) => {
     const [price, setPrice] = useState(0);
     const volumeRef = useRef(null);
     const basePrice = useRef(0);
     const [date, onChange] = useState(new Date());
+    const { authTokens } = useContext(AuthContext);
 
     const updatePrice = (e) => {
         setPrice((parseFloat(volumeRef.current.value || "1") * basePrice.current).toFixed(2))
@@ -25,17 +27,17 @@ export const AddPopup = ({ticker, active, setActive}) => {
 
     const submitForm = (e) => {
         e.preventDefault()
-        console.log("checlk")
+        const token = authTokens.access;
         fetch("http://localhost:3000/portfolio/investment", {
             method: "POST",
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                'authorization': `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({date, volume: parseFloat(volumeRef.current.value || "1"), ticker}),
-        }).then(res => res.json)
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
+            body: JSON.stringify({date, amount: parseFloat(volumeRef.current.value || "1"), ticker}),
+        }).then(res => res.json()
+            .then(res => console.log(res.message)))
+            .catch(e => console.log(e.message));
         setActive(false)
 
     }
@@ -47,7 +49,7 @@ export const AddPopup = ({ticker, active, setActive}) => {
                     Add investment [{ticker}]
                 </div>
                 <form onSubmit={submitForm} className="grid grid-cols-2 grid-rows-2 relative">
-                    <input ref={volumeRef} type="number" onChange={updatePrice}
+                    <input ref={volumeRef} type="number" step="any" onChange={updatePrice}
                            className="p-4 text-2xl border-b border-black bg-black bg-opacity-10 focus:bg-opacity-20 transition-all"
                            placeholder="Amount"/>
                     <div

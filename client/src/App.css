@@ -16,6 +16,15 @@
     width: 100%;
   }
 
+  body::-webkit-scrollbar {
+    background-color: rgba(0, 0, 0, 1);
+    width: 5px;
+  }
+  body::-webkit-scrollbar-thumb {
+    background-color: rgba(80,80,80,1);
+    border-radius: 10px;
+  }
+
   .scrollbar::-webkit-scrollbar {
     background-color: rgba(255, 255, 255, 0);
     width: 5px;

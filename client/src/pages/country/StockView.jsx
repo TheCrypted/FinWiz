@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Container,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from "@mui/material";
 
 export const StockView = () => {
