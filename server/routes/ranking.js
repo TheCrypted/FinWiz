@@ -70,30 +70,39 @@ module.exports = (pool) => {
                 SELECT
                     c.country_name,
                     e.year,
-                    AVG(e.value) as avg_education_value,
-                    COUNT(DISTINCT e.indicator_code) as num_indicators
+                    AVG(e.value) as avg_education_value
                 FROM Country c
                 JOIN Education e ON c.country_code = e.country_code
                 JOIN EducationIndicators ei ON e.indicator_code = ei.indicator_code
-                WHERE e.year = 2010
+                WHERE (e.year = 2010
                     OR e.year = 2015
                     OR e.year = 2020
-                    OR e.year = 2025
+                    OR e.year = 2025) AND
+                    (e.indicator_code='UIS.NERT.1' OR
+                     e.indicator_code='SE.SEC.ENRR' OR
+                     e.indicator_code='UIS.NER.3.F' OR
+                     e.indicator_code='SE.PRE.NENR.FE' OR
+                     e.indicator_code='SE.PRM.CMPL.ZS' OR
+                     e.indicator_code='SE.SEC.TCAQ.ZS' OR
+                     e.indicator_code='SE.XPD.TOTL.GD.ZS'
+                     )
                 GROUP BY c.country_name, e.year
             ),
             IMFMetrics AS (
                 SELECT
                     c.country_name,
                     EXTRACT(YEAR FROM i.date) as year,
-                    AVG(i.value) as avg_imf_value,
-                    COUNT(DISTINCT i.indicator_code) as num_imf_indicators
+                    AVG(i.value) as avg_imf_value
                 FROM Country c
-                JOIN IMF i ON c.country_code = i.country_code
-                JOIN IMFIndicators ii ON i.indicator_code = ii.indicator_code
-                WHERE EXTRACT(YEAR FROM i.date) = 2010
-                OR EXTRACT(YEAR FROM i.date) = 2015
+                    JOIN IMF i ON c.country_code = i.country_code
+                    JOIN IMFIndicators ii ON i.indicator_code = ii.indicator_code
+                WHERE
+                    (i.indicator_code = 'PPPGDP'
+                    OR i.indicator_code = 'BCA'
+                     OR i.indicator_code = 'NGDPD')
+                AND (EXTRACT(YEAR FROM i.date) = 2010 OR EXTRACT(YEAR FROM i.date) = 2015
                     OR EXTRACT(YEAR FROM i.date) = 2020
-                    OR EXTRACT(YEAR FROM i.date) = 2025
+                    OR EXTRACT(YEAR FROM i.date) = 2025)
                 GROUP BY c.country_name, EXTRACT(YEAR FROM i.date)
             ),
             RankedCountries AS (
@@ -111,10 +120,8 @@ module.exports = (pool) => {
                         ORDER BY (cem.avg_education_value * im.avg_imf_value) DESC
                     ) as row_num
                 FROM CountryEducationMetrics cem
-                JOIN IMFMetrics im ON cem.country_name = im.country_name
-                    AND cem.year = im.year
-            --     WHERE cem.num_indicators > 3
-            --         AND im.num_imf_indicators > 3
+                    JOIN IMFMetrics im ON cem.country_name = im.country_name
+                        AND cem.year = im.year
             )
             SELECT
                 country_name,
@@ -145,20 +152,20 @@ module.exports = (pool) => {
                 SELECT
                 S.name AS stock_name,
                 S.country_code,
-                AVG(P.close) AS av_performance
+                AVG(P.close*P.volume) AS av_performance
                 FROM stock_desc S
                 JOIN stock_price P on P.ticker = S.ticker
                 WHERE P.date BETWEEN '2022-01-01' AND '2023-12-31'
                 GROUP BY S.name, S.country_code ),
 
                 TopStocks AS (
-                SELECT A.stock_name, A.country_code, A.av_performance
-                FROM AveragePerformance A
-                WHERE
-                (SELECT COUNT(*)
-                FROM AveragePerformance P
-                WHERE P.country_code = A.country_code AND P.av_performance > A.av_performance)
-                <= 5 )
+                    SELECT A.stock_name, A.country_code, A.av_performance
+                    FROM AveragePerformance A
+                    WHERE
+                    (SELECT COUNT(*)
+                    FROM AveragePerformance P
+                    WHERE P.country_code = A.country_code AND P.av_performance > A.av_performance)
+                    <= 5 )
                 SELECT
                 C.country_name,
                 STRING_AGG(T.stock_name, ', ' ORDER BY T.av_performance DESC) AS best_stocks,
