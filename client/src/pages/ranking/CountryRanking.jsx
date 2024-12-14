@@ -1,20 +1,38 @@
-import {useContext, useEffect, useState} from 'react';
-import { Button, TextField, Container, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {useContext, useEffect, useRef, useState} from 'react';
+import {
+    Button,
+    TextField,
+    Container,
+    Divider,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Collapse
+} from '@mui/material';
 import { red } from '@mui/material/colors';
 import {AuthContext} from "../../context/AuthContext.jsx";
 import ReactTextTransition from "react-text-transition";
+import {useNavigate} from "react-router-dom";
+import {NewsArticle} from "../../components/tiny/NewsArticle.jsx";
+import {Footer} from "../../components/Footer.jsx";
 
 export const CountryRanking = () => {
     //ranking table for top countries for a given education indicator code
     const indicatorEduCode = 'UIS.FEP.3'; // Replace with user search function result
     const [topCountriesEduData, setTopCountriesEduData] = useState([]); // Initialize as an empty array
     const [countryWindow, setCountryWindow] = useState({});
-
+    const navigate = useNavigate();
     //ranking table for top countries for a given imf indicator code 
-    const indicatorIMFCode = 'PPPGDP'; // Replace with user search function result
     const [topCountriesIMFData, setTopCountriesIMFData] = useState([]);
+    const [bottomCountriesIMFData, setBottomCountriesIMFData] = useState([]);
     const {user, authTokens} = useContext(AuthContext);
-
+    const [indicators, setIndicators] = useState(["Whatever"])
+    const [search, setSearch] = useState(false)
+    const searchInputRef = useRef(null);
+    const indicatorRef = useRef([]);
     //ranking table for combined education & imf performance
     //no search function needed
     const [topCountriesData, setTopCountriesData] = useState([]);
@@ -28,16 +46,53 @@ export const CountryRanking = () => {
             .then(res => setCountryWindow(res.window_info[0]))
             .catch(err => console.error(err));
     }
-    console.log(countryWindow)
+
+    const onInput = () => {
+        if(searchInputRef.current.value) {
+            setIndicators(indicatorRef.current.filter(item => item.indicator_name.includes(searchInputRef.current.value)))
+
+        } else {
+            setSearchResults([])
+        }
+    }
+
+    const onSubmitCode = (newCode) => {
+        updateIMFData(newCode)
+    }
+
+    const updateIMFData = (newCode, name) => {
+        fetch(`http://localhost:3000/getTopCountriesIMF/${newCode}`)
+            .then((res) => res.json())
+            .then((resJson) => setTopCountriesIMFData(resJson.imf_info));
+        fetch(`http://localhost:3000/getTopCountriesIMF/${newCode}?order=bottom`)
+            .then((res) => res.json())
+            .then((resJson) => setBottomCountriesIMFData(resJson.imf_info));
+        if(name) searchInputRef.current.value = name;
+    }
+
+    useEffect(() => {
+        fetch(`http://localhost:3000/getCountryWindow?country=Germany`, {
+            method: 'GET',
+        }).then(res => res.json())
+            .then(res => setCountryWindow(res.window_info[0]))
+            .catch(err => console.error(err));
+
+        fetch(`http://localhost:3000/indicators`, {
+            method: 'GET',
+        }).then(res => res.json())
+            .then(res => {
+                indicatorRef.current = res;
+                setIndicators(res)
+            })
+            .catch(err => console.error(err));
+    }, []);
 
     useEffect(() => {
         fetch(`http://localhost:3000/getTopCountriesEducation/${indicatorEduCode}`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesEduData(resJson.education_info));
 
-        fetch(`http://localhost:3000/getTopCountriesIMF/${indicatorIMFCode}`)
-            .then((res) => res.json())
-            .then((resJson) => setTopCountriesIMFData(resJson.imf_info));
+        updateIMFData('PPPGDP');
 
         fetch(`http://localhost:3000/getTopCountriesCombined`)
             .then((res) => res.json())
@@ -47,18 +102,17 @@ export const CountryRanking = () => {
             .then((res) => res.json())
             .then((resJson) => setTopStocksData(resJson.rank_stock_info));
 
-    }, [indicatorEduCode], [indicatorIMFCode]);
+    }, [indicatorEduCode]);
 
     return (
 
         <div className="w-full h-full bg-slate-900">
-
             <div className="w-full h-full relative">
                 <div className="w-full pointer-events-none h-full absolute flex justify-end z-20">
                     <div className="flex items-center justify-center w-1/2 pointer-events-auto">
                         <div className="rounded-xl w-2/4 h-2/5 grid pl-4 text-gray-200 text-xl  font-mono grid-rows-2 bg-opacity-10  ">
-                            <div className="flex items-center">Education score: {countryWindow?.avg_education_value.toFixed(0)}</div>
-                            <div className="flex items-end ">International Monetary score: {countryWindow?.avg_imf_value.toFixed(0)}</div>
+                            <div className="flex items-center">Education score: {countryWindow?.avg_education_value?.toFixed(0)}</div>
+                            <div className="flex items-end ">International Monetary score: {countryWindow?.avg_imf_value?.toFixed(0)}</div>
                         </div>
                     </div>
                 </div>
@@ -69,7 +123,7 @@ export const CountryRanking = () => {
                         Hi, {user?.username}
                     </div>
                     <div className="w-full flex items-center justify-center h-full relative">
-                        Country Rankings
+                        Global Overview
                     </div>
 
                     <div onClick={() => navigate("/portfolio")}
@@ -110,128 +164,79 @@ export const CountryRanking = () => {
                         </ReactTextTransition>
                     </div>
                 </div>
-
             </div>
-            {/* depending on which button pressed, change search by results to education indicator, 
-                IMF indicators or no search needed if rank by overall or stocks */}
-
-            <Button onClick={() => search()} style={{left: '5%', transform: 'translateX(-50%)'}}>
-                Rank By Education
-            </Button>
-
-            <Button onClick={() => search()} style={{left: '15%', transform: 'translateX(-50%)'}}>
-                Rank By Macroeconomics
-            </Button>
-
-            <Button onClick={() => search()} style={{left: '25%', transform: 'translateX(-50%)'}}>
-                Rank By Overall
-            </Button>
-
-            <Button onClick={() => search()} style={{left: '35%', transform: 'translateX(-50%)'}}>
-                Rank By Stocks
-            </Button>
-
-            {/* For search bar, need AUTO-COMPLETE since user doesn't know the indicators */}
-            <TextField label='Rank by' style={{width: "100%"}}/>
-
-            <Button onClick={() => search()} style={{left: '90%', transform: 'translateX(-50%)'}}>
-                Generate Ranking
-            </Button>
-
-            <h1>Top Countries for {indicatorEduCode}</h1>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Country</TableCell>
-                            <TableCell>Average Value</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {topCountriesEduData.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.country_name}</TableCell>
-                                <TableCell>{row.val}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <Divider></Divider>
-
-            <h1>Top Countries for {indicatorIMFCode}</h1>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Country</TableCell>
-                            <TableCell>Average Value</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {topCountriesIMFData.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.country_name}</TableCell>
-                                <TableCell>{row.avg_value}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <Divider></Divider>
-
-            <h1>Top Countries (Combined)</h1>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Rank</TableCell>
-                            <TableCell>Year</TableCell>
-                            <TableCell>Country</TableCell>
-                            <TableCell>Average Education Value</TableCell>
-                            <TableCell>Average IMF Value</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {topCountriesData.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.country_rank}</TableCell>
-                                <TableCell>{row.year}</TableCell>
-                                <TableCell>{row.country_name}</TableCell>
-                                <TableCell>{row.avg_education_value}</TableCell>
-                                <TableCell>{row.avg_imf_value}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <h1>Top Stocks For Each Country</h1>
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Country</TableCell>
-                            <TableCell>Stocks</TableCell>
-                            <TableCell>Average Stock Value</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
+            <div className="w-full h-24 bg-slate-900"/>
+            <div className="w-full pl-8 h-full flex bg-slate-900">
+                <div className="w-1/3 flex flex-col gap-12">
+                    <NewsArticle />
+                    <NewsArticle />
+                    <NewsArticle />
+                </div>
+                <div className="w-2/3 h-full pl-8 text-2xl font-serif flex flex-col text-white items-center">
+                    <div className="w-full h-1/5" />
+                    <div className="w-3/4 h-auto">
+                        <div className="grid text-gray-400 grid-cols-[20%_50%_30%]">
+                            <div>Country</div>
+                            <div>Stocks</div>
+                            <div className="flex justify-end">Avg Market Cap</div>
+                        </div>
                         {topStocksData.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.country_name}</TableCell>
-                                <TableCell>{row.best_stocks}</TableCell>
-                                <TableCell>{row.avg_country_performance}</TableCell>
-                            </TableRow>
+                            <div className="grid text-xl py-2 grid-cols-[20%_50%_30%] border-t border-gray-400" key={index}>
+                                <div>{row.country_name}</div>
+                                <div>{row.best_stocks}</div>
+                                <div className="flex justify-end">{row.avg_country_performance.toFixed(0)}</div>
+                            </div>
                         ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                    </div>
+                </div>
+            </div>
+            <div className="bg-slate-900 w-full h-full relative">
+                <input onFocus={() => setSearch(true)} onBlur={() => setSearch(false)} ref={searchInputRef} onChange={onInput} className="w-full h-24 text-white placeholder:text-gray-500 text-7xl pl-8 font-serif" placeholder="Rank by indicator"/>
+                <Collapse in={search} timeout="auto" unmountOnExit className="absolute top-24 z-20 w-1/3 left-8 h-full">
+                    <div className="w-full h-full rounded-b-xl bg-white bg-opacity-5  backdrop-blur-xl ">
+                        {
+                            indicators.slice(0,10).map(item => (
+                                <div onClick={() => updateIMFData(item.indicator_code, item.indicator_name)} className="w-full text-white flex items-center text-xl font-mono hover:underline hover:cursor-pointer justify-between px-4 py-2">
+                                    <div className="truncate w-3/4 ">{item.indicator_name}</div>
+                                    <div>{item.indicator_code}</div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </Collapse>
+                <div className=" w-full h-[83%] flex">
+                    <div className="w-1/2 pl-8 flex text-white font-mono items-center justify-center">
+                        <div className="w-3/4">
+                            <div className="text-gray-400 grid grid-cols-[80%_20%]">
+                                <div>Country</div>
+                                <div className="flex justify-end">Value</div>
+                            </div>
+                            {topCountriesIMFData.map((row, index) => (
+                                <div className="py-2 text-xl grid grid-cols-[80%_20%]" key={index}>
+                                    <div>{row.country_name.split("(")[0]}</div>
+                                    <div className="flex bg-green-800 bg-opacity-20 justify-end">{row.avg_value.toFixed(0)}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="w-1/2 px-8 flex text-white font-mono items-center justify-center">
+                        <div className="w-3/4">
+                            <div className="text-gray-400 grid grid-cols-[80%_20%]">
+                                <div>Country</div>
+                                <div className="flex justify-end">Value</div>
+                            </div>
+                            {bottomCountriesIMFData.map((row, index) => (
+                                <div className="py-2 text-xl grid grid-cols-[80%_20%]" key={index}>
+                                    <div>{row.country_name.split("(")[0]}</div>
+                                    <div className="flex bg-red-800 bg-opacity-20 h-full justify-end">{row.avg_value.toFixed(0)}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-            <Divider></Divider>
-
+                </div>
+            </div>
+            <Footer/>
 
         </div>
     );

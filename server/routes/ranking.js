@@ -33,34 +33,60 @@ module.exports = (pool) => {
     router.get("/getTopCountriesIMF/:imf_indicator_code", async (req, res) => {
         try {
             const { imf_indicator_code } = req.params;
+            const { order } = req.query; // Query param to determine top or bottom countries
 
-            const result = await pool.query(
-                `SELECT
-                    c.country_name,
-                    AVG(IMF.value) AS avg_value
-                FROM
-                    imf
-                    JOIN country c ON c.country_code = IMF.country_code
-                    JOIN imfindicators i ON i.indicator_code = IMF.indicator_code
-                WHERE
-                    i.indicator_code = $1
-                GROUP BY
-                    c.country_name
+            let query = `
+            SELECT
+                c.country_name,
+                AVG(IMF.value) AS avg_value
+            FROM
+                imf
+                JOIN country c ON c.country_code = IMF.country_code
+                JOIN imfindicators i ON i.indicator_code = IMF.indicator_code
+            WHERE
+                i.indicator_code = $1
+            GROUP BY
+                c.country_name
+            ORDER BY
+                avg_value DESC
+            LIMIT 10
+        `;
+
+            if (order === "bottom") {
+                query = `
+                SELECT *
+                FROM (
+                    SELECT
+                        c.country_name,
+                        AVG(IMF.value) AS avg_value
+                    FROM
+                        imf
+                        JOIN country c ON c.country_code = IMF.country_code
+                        JOIN imfindicators i ON i.indicator_code = IMF.indicator_code
+                    WHERE
+                        i.indicator_code = $1
+                    GROUP BY
+                        c.country_name
+                    ORDER BY
+                        avg_value ASC
+                    LIMIT 10
+                ) AS bottom_countries
                 ORDER BY
                     avg_value DESC
-                LIMIT 10;
-                `,
-                [imf_indicator_code]
-            );
+            `;
+            }
+
+            const result = await pool.query(query, [imf_indicator_code]);
 
             res.json({
                 imf_info: result.rows
             });
         } catch (err) {
             console.error(err);
-            res.status(500).json({ message: "Error fetching imf details" });
+            res.status(500).json({ message: "Error fetching IMF details" });
         }
     });
+
 
     // Route for complex query 2
     router.get("/getTopCountriesCombined", async (req, res) => {

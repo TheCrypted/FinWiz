@@ -21,6 +21,21 @@ module.exports = (pool) => {
         }
     })
 
+    // route to get all indicator names and codes
+    router.get('/indicators', (req, res) => {
+        const query = `
+            SELECT indicator_code, indicator_name FROM imfindicators
+        `;
+
+        pool.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching indicators:', err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            res.json(results.rows);
+        });
+    });
+
     // route for simple query 2
     router.get("/getIMFInfo/:country_name", async (req, res) => {
         try {
