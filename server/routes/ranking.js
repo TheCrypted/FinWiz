@@ -65,6 +65,10 @@ module.exports = (pool) => {
     // Route for complex query 2
     router.get("/getTopCountriesCombined", async (req, res) => {
         try {
+            // Get rank range from query parameters with defaults
+            const minRank = parseInt(req.query.minRank) || 1;
+            const maxRank = parseInt(req.query.maxRank) || 20;
+
             const result = await pool.query(
                 `WITH CountryEducationMetrics AS (
                 SELECT
@@ -114,11 +118,7 @@ module.exports = (pool) => {
                     RANK() OVER (
                         PARTITION BY cem.year
                         ORDER BY (cem.avg_education_value * im.avg_imf_value) DESC
-                    ) as country_rank,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY cem.year
-                        ORDER BY (cem.avg_education_value * im.avg_imf_value) DESC
-                    ) as row_num
+                    ) as country_rank
                 FROM CountryEducationMetrics cem
                     JOIN IMFMetrics im ON cem.country_name = im.country_name
                         AND cem.year = im.year
@@ -130,9 +130,10 @@ module.exports = (pool) => {
                 avg_imf_value,
                 country_rank
             FROM RankedCountries
-            WHERE row_num <= 20
-            ORDER BY year DESC, country_rank;
-            `            );
+            WHERE country_rank BETWEEN $1 AND $2
+            ORDER BY year DESC, country_rank;`,
+                [minRank, maxRank]
+            );
 
             res.json({
                 rank_info: result.rows
@@ -142,6 +143,111 @@ module.exports = (pool) => {
             res.status(500).json({ message: "Error fetching combined ranking details" });
         }
     });
+
+
+    router.get("/getCountryWindow", async (req, res) => {
+        try {
+            const countryName = req.query.country;
+            if (!countryName) {
+                return res.status(400).json({ message: "Country name is required" });
+            }
+
+            const result = await pool.query(
+                `WITH CountryEducationMetrics AS (
+                SELECT
+                    c.country_name,
+                    e.year,
+                    AVG(e.value) as avg_education_value
+                FROM Country c
+                JOIN Education e ON c.country_code = e.country_code
+                JOIN EducationIndicators ei ON e.indicator_code = ei.indicator_code
+                WHERE (e.year = 2010
+                    OR e.year = 2015
+                    OR e.year = 2020
+                    OR e.year = 2025) AND
+                    (e.indicator_code='UIS.NERT.1' OR
+                     e.indicator_code='SE.SEC.ENRR' OR
+                     e.indicator_code='UIS.NER.3.F' OR
+                     e.indicator_code='SE.PRE.NENR.FE' OR
+                     e.indicator_code='SE.PRM.CMPL.ZS' OR
+                     e.indicator_code='SE.SEC.TCAQ.ZS' OR
+                     e.indicator_code='SE.XPD.TOTL.GD.ZS'
+                     )
+                GROUP BY c.country_name, e.year
+            ),
+            IMFMetrics AS (
+                SELECT
+                    c.country_name,
+                    EXTRACT(YEAR FROM i.date) as year,
+                    AVG(i.value) as avg_imf_value
+                FROM Country c
+                    JOIN IMF i ON c.country_code = i.country_code
+                    JOIN IMFIndicators ii ON i.indicator_code = ii.indicator_code
+                WHERE
+                    (i.indicator_code = 'PPPGDP'
+                    OR i.indicator_code = 'BCA'
+                     OR i.indicator_code = 'NGDPD')
+                AND (EXTRACT(YEAR FROM i.date) = 2010 OR EXTRACT(YEAR FROM i.date) = 2015
+                    OR EXTRACT(YEAR FROM i.date) = 2020
+                    OR EXTRACT(YEAR FROM i.date) = 2025)
+                GROUP BY c.country_name, EXTRACT(YEAR FROM i.date)
+            ),
+            RankedCountries AS (
+                SELECT
+                    cem.country_name,
+                    cem.year,
+                    cem.avg_education_value,
+                    im.avg_imf_value,
+                    RANK() OVER (
+                        PARTITION BY cem.year
+                        ORDER BY (cem.avg_education_value * im.avg_imf_value) DESC
+                    ) as country_rank
+                FROM CountryEducationMetrics cem
+                    JOIN IMFMetrics im ON cem.country_name = im.country_name
+                        AND cem.year = im.year
+            ),
+            CountryRankInfo AS (
+                SELECT 
+                    country_name,
+                    year,
+                    avg_education_value,
+                    avg_imf_value,
+                    country_rank,
+                    LAG(country_name, 2) OVER (PARTITION BY year ORDER BY country_rank) as country_2_above,
+                    LAG(country_name, 1) OVER (PARTITION BY year ORDER BY country_rank) as country_1_above,
+                    LEAD(country_name, 1) OVER (PARTITION BY year ORDER BY country_rank) as country_1_below,
+                    LEAD(country_name, 2) OVER (PARTITION BY year ORDER BY country_rank) as country_2_below
+                FROM RankedCountries
+            )
+            SELECT 
+                year,
+                country_2_above,
+                country_1_above,
+                country_name as queried_country,
+                country_1_below,
+                country_2_below,
+                country_rank,
+                avg_education_value,
+                avg_imf_value
+            FROM CountryRankInfo
+            WHERE country_name = $1
+            ORDER BY year DESC;`,
+                [countryName]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ message: "Country not found" });
+            }
+
+            res.json({
+                window_info: result.rows
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error fetching country window details" });
+        }
+    });
+
 
 
     // Route for complex query 5

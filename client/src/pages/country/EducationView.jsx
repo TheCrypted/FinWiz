@@ -18,6 +18,7 @@ import {
   YAxis
 } from "recharts";
 import {useNavigate, useParams} from "react-router-dom";
+import {Footer} from "../../components/Footer.jsx";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -111,7 +112,7 @@ export const EducationView = () => {
           </div>
         </div>
         <div className="w-full place-items-center h-[88%] grid grid-cols-[45%_55%]">
-          <div className="pl-4 flex flex-col w-full h-auto text-xl text-gray-300 font-mono pr-4">
+          <div className="pl-12 flex flex-col w-full h-auto text-xl text-gray-300 font-mono pr-4">
             <div className="text-gray-400 w-full border-b border-white border-opacity-20 grid grid-cols-[30%_30%_40%] p-4">
               <div className="flex items-center justify-start">Age Range</div>
               <div className="flex items-center ">Gender</div>
@@ -175,19 +176,7 @@ export const EducationView = () => {
             <Radar name="indicator_name" dataKey="indicator_value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
           </RadarChart>
         </ResponsiveContainer>
-      <div className="w-full font-serif text-sm text-gray-500 pt-12 h-1/6 bg-slate-900 px-12 flex justify-between">
-        <div className="flex flex-col">
-          <div className="hover:underline hover:cursor-pointer">Internation Monetary Fund Analysis</div>
-          <div className="hover:underline hover:cursor-pointer">Country Rankings</div>
-          <div className="hover:underline hover:cursor-pointer">Dashboard Analysis</div>
-        </div>
-        <div className="flex flex-col items-end">
-          <div className="hover:underline hover:cursor-pointer">Country Market Breakdown</div>
-          <div className="hover:underline hover:cursor-pointer">View Portfolio</div>
-          <div className="hover:underline hover:cursor-pointer">Dashboard</div>
-
-        </div>
-      </div>
+      <Footer />
       </div>
   );
 };
