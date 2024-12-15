@@ -63,23 +63,23 @@ export const CountryRanking = () => {
     }
 
     const updateIMFData = (newCode, name) => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}`)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesIMFData(resJson.imf_info));
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}?order=bottom`)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}?order=bottom`)
             .then((res) => res.json())
             .then((resJson) => setBottomCountriesIMFData(resJson.imf_info));
         if(name) searchInputRef.current.value = name;
     }
 
     useEffect(() => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=Germany`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=Germany`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => setCountryWindow(res.window_info[0]))
             .catch(err => console.error(err));
 
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/indicators`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/indicators`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => {
@@ -88,7 +88,7 @@ export const CountryRanking = () => {
             })
             .catch(err => console.error(err));
 
-        fetch("http://${HOST_AWS}:${PORT_AWS}/bbc-news", {
+        fetch("https://${HOST_AWS}:${PORT_AWS}/bbc-news", {
             method: "GET"
         }).then(res => res.json())
             .then(res => console.log(res))
@@ -96,17 +96,17 @@ export const CountryRanking = () => {
     }, []);
 
     useEffect(() => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesEducation/${indicatorEduCode}`)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesEducation/${indicatorEduCode}`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesEduData(resJson.education_info));
 
         updateIMFData('PPPGDP');
 
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesCombined`)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesCombined`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesData(resJson.rank_info));
 
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopStocksPerCountry`)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopStocksPerCountry`)
             .then((res) => res.json())
             .then((resJson) => setTopStocksData(resJson.rank_stock_info));
 

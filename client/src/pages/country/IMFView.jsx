@@ -52,7 +52,7 @@ export const IMFView = () => {
 
 
   useEffect(() => {
-    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIMFPerformance/${country_name}`)
+    fetch(`https://${HOST_AWS}:${PORT_AWS}/getIMFPerformance/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         console.log("API Response:", resJson); // Debugging
@@ -65,7 +65,7 @@ export const IMFView = () => {
   }, [country_name]);
 
   useEffect(() => {
-    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIMFInfo/${country_name}`)
+    fetch(`https://${HOST_AWS}:${PORT_AWS}/getIMFInfo/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         console.log("API Response:", resJson); // Debugging

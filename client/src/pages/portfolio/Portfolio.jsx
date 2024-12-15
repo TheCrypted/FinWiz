@@ -29,7 +29,7 @@ export const Portfolio = () => {
     const [graphPoints, setGraphPoints] = useState([])
 
     const getInvestments = () => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -41,7 +41,7 @@ export const Portfolio = () => {
     }
 
     const getIndustryDistribution = () => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/industry-distribution`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/industry-distribution`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export const Portfolio = () => {
         if(!authTokens?.access) {
             navigate("/signin")
         }
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=1M`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=1M`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export const Portfolio = () => {
 
     const onInput = () => {
         if(searchInputRef.current.value) {
-            fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/equity?prefix=${searchInputRef.current.value}`)
+            fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/equity?prefix=${searchInputRef.current.value}`)
                 .then(res => res.json())
                 .then(res => setSearchResults(res.equities))
         } else {
@@ -312,7 +312,7 @@ export const Portfolio = () => {
 
 
             </div>
-            <div className="w-full h-20"/>
+            <div className="w-full h-40"/>
 
             <Footer/>
         </div>

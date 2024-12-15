@@ -22,7 +22,7 @@ export const SignIn = () => {
 
 
         try {
-            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/login`, {
+            const response = await fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/login`, {
                 method: "POST",
                 body: JSON.stringify(payload),
                 headers: {

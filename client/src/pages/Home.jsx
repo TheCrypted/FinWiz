@@ -6,6 +6,7 @@ import {InfoCard} from "../components/InfoCard.jsx";
 import ReactTextTransition, { presets } from "react-text-transition";
 import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../context/AuthContext.jsx";
+import {HOST_AWS, PORT_AWS} from "../backend.json"
 
 export const Home = () => {
     const containerRef = useRef(null);
@@ -37,7 +38,7 @@ export const Home = () => {
     useEffect(() => {
         if(!selectedPolygon) return;
 
-        fetch(`http://localhost:3000/getIMFInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getIMFInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
             method: "GET"
         }).then(res => res.json())
             .then(res => {
@@ -56,7 +57,7 @@ export const Home = () => {
             })
             .catch(err => console.error(err))
 
-        fetch(`http://localhost:3000/getEducationInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getEducationInfo/${encodeURI(selectedPolygon?.properties?.sovereignt)}`, {
             method: "GET"
         }).then(res => res.json())
             .then(res => {

@@ -18,7 +18,7 @@ export const SignUp = () => {
         }
 
         try {
-            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/register`, {
+            const response = await fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/register`, {
                 method: "POST",
                 body: JSON.stringify(payload),
                 headers: {

@@ -14,7 +14,7 @@ export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustry
     }
 
     useEffect(() => {
-        fetch(`http://localhost:3000/portfolio/equity/${ticker}?expected=1`, {
+        fetch(`https://localhost:3000/portfolio/equity/${ticker}?expected=1`, {
             method: "GET",
             headers: {
                 'content-type': 'application/json',
@@ -28,7 +28,7 @@ export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustry
     const submitForm = (e) => {
         e.preventDefault()
         const token = authTokens.access;
-        fetch("http://localhost:3000/portfolio/investment", {
+        fetch("https://localhost:3000/portfolio/investment", {
             method: "POST",
             headers: {
                 'authorization': `Bearer ${token}`,

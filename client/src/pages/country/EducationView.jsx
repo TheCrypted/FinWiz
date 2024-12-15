@@ -56,7 +56,7 @@ export const EducationView = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://${HOST_AWS}:${PORT_AWS}/getPercentageDiffEducation/${country_name}`)
+    fetch(`https://${HOST_AWS}:${PORT_AWS}/getPercentageDiffEducation/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         if (resJson.percentage_difference) {
@@ -74,7 +74,7 @@ export const EducationView = () => {
 
 
   useEffect(() => {
-    fetch(`http://${HOST_AWS}:${PORT_AWS}/getEducationInfo/${country_name}`)
+    fetch(`https://${HOST_AWS}:${PORT_AWS}/getEducationInfo/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         getEducationValues(resJson.education_info || []); // Extract imf_info array
@@ -87,7 +87,7 @@ export const EducationView = () => {
   }, [country_name]);
 
   useEffect(() => {
-    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIncreasingIndicators/${country_name}`)
+    fetch(`https://${HOST_AWS}:${PORT_AWS}/getIncreasingIndicators/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => setImprovedEduData(resJson.improv_edu_info));
   }, [country_name]);

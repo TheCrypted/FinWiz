@@ -56,7 +56,7 @@ export const ChartFin = ({industryBreak}) => {
     ];
 
     const updateGraphData = (time) => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=${time}`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=${time}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

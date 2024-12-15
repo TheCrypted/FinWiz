@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const getUser = (token) => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = (tokens) => {
         setAuthTokens(tokens);
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
             method: "GET",
             headers: {
                 'authorization': 'Bearer ' + tokens.access,
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateToken = async () => {
         try {
-            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/refresh/`, {
+            const response = await fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/refresh/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 setAuthTokens(data);
-                fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
+                fetch(`https://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
                     method: "GET",
                     headers: {
                         'authorization': 'Bearer ' + authTokens.access,
