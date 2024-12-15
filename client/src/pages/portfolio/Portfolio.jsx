@@ -27,6 +27,12 @@ export const Portfolio = () => {
     const [activeTicker, setActiveTicker] = useState(null)
     const [industryBreak, setIndustryBreak] = useState({})
     const [graphPoints, setGraphPoints] = useState([])
+    let color_set = {
+        4: "#1e40af",
+        3: "#2563eb",
+        2: "#60a5fa",
+        1: "#bfdbfe"
+    }
 
     const getInvestments = () => {
         fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
@@ -188,7 +194,7 @@ export const Portfolio = () => {
                             {
                                 industryBreak?.industryBreakDown &&
                                 industryBreak.industryBreakDown.slice(0, 4).map((item, index) => (
-                                    <div style={{width: item.percentage}} className={`bg-blue-${(4 - index) * 2}00`}/>
+                                    <div style={{width: item.percentage, backgroundColor: color_set[4 - index]}}/>
                                 ))
                             }
                         </div>
