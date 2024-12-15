@@ -6,7 +6,7 @@ export const ShareIndex = ({text, value, pc, strength}) => {
                 <div className={`w-4 h-4 rounded-full bg-blue-${strength * 200}`}/>
             </div>
             <div className=" flex items-center ">
-                <b>{pc}%</b> &nbsp; {text}
+                <b>{pc}</b> &nbsp; {text}
             </div>
             <div className="flex items-center justify-end font-bold w-full h-full">
                 ${value}

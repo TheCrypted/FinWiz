@@ -6,6 +6,7 @@ import {useContext, useEffect, useRef, useState} from "react";
 import {AuthContext} from "../../context/AuthContext.jsx";
 import {Collapse} from "@mui/material";
 import {AddPopup} from "../../components/tiny/AddPopup.jsx";
+import {Footer} from "../../components/Footer.jsx";
 
 
 export const Portfolio = () => {
@@ -17,6 +18,7 @@ export const Portfolio = () => {
     const [searchResults, setSearchResults] = useState([])
     const [popup, setPopup] = useState(false)
     const [activeTicker, setActiveTicker] = useState(null)
+    const [industryBreak, setIndustryBreak] = useState({})
 
     const getInvestments = () => {
         fetch("http://localhost:3000/portfolio/investment", {
@@ -30,6 +32,18 @@ export const Portfolio = () => {
             .catch(e => console.log(e))
     }
 
+    const getIndustryDistribution = () => {
+        fetch("http://localhost:3000/portfolio/industry-distribution", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${authTokens.access}`,
+            }
+        }).then(res => res.json())
+            .then(res => setIndustryBreak(res))
+            .catch(err => console.error(err));
+    }
+
     useEffect(() => {
         window.addEventListener("scroll", function (event) {
             setSearch(false)
@@ -38,7 +52,7 @@ export const Portfolio = () => {
             navigate("/signin")
         }
         getInvestments();
-
+        getIndustryDistribution();
     }, []);
 
     const addInvestment = (ticker) => {
@@ -69,7 +83,7 @@ export const Portfolio = () => {
                 </div>
                 <div className="w-full h-full relative">
                     <input onChange={onInput} ref={searchInputRef} onFocus={() => setSearch(true)} onBlur={() => setSearch(false)} placeholder="Search Equities"
-                           className="w-full h-full rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
+                           className="w-full h-full font-mono placeholder:font-serif rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
                     <Collapse in={search} timeout="auto" unmountOnExit className="absolute z-20 top-16 w-full h-full">
                         <div className="w-full h-full backdrop-blur-xl ">
                             {
@@ -103,7 +117,7 @@ export const Portfolio = () => {
                 </div>
             </div>
             <div className="h-[85%] w-full pl-12 pr-12 grid grid-cols-[70%_30%]">
-                <ChartFin />
+                <ChartFin industryBreak={industryBreak}/>
                 <div className="cursor-auto w-full h-full pl-2 pr-2 flex items-center justify-center">
                     <div className="w-full px-6 pb-6 h-3/4 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
                         <div className="flex items-center text-white text-2xl ">Portfolio Highlights</div>
@@ -118,18 +132,22 @@ export const Portfolio = () => {
                             </div>
                         </div>
                         <div/>
-                        <div className="w-full h-full flex rounded-full  bg-white">
-                            <div className="bg-blue-800 w-1/2 rounded-l-full" />
-                            <div className="bg-blue-600 border-l-4 border-slate-800 w-1/4"/>
-                            <div className="bg-blue-400 border-l-4 border-slate-800 w-1/5"/>
-                            <div className="bg-blue-200 border-l-4 border-slate-800 w-1/5 rounded-r-full" />
+                        <div className="w-full h-full flex rounded-full overflow-hidden  bg-white">
+                            {
+                                industryBreak.industryBreakDown &&
+                                industryBreak.industryBreakDown.slice(0, 4).map((item, index) => (
+                                    <div style={{width: item.percentage}} className={`bg-blue-${(4-index)*2}00`}/>
+                                ))
+                            }
                         </div>
                         <div />
                         <div className="w-full h-full flex flex-col gap-2">
-                            <ShareIndex strength={4} pc={44.5} value={1200.20} text={"Technology"}/>
-                            <ShareIndex strength={3} pc={30.0} value={800.00} text={"Healthcare"}/>
-                            <ShareIndex strength={2} pc={21.2} value={353.04} text={"Finance"}/>
-                            <ShareIndex strength={1} pc={8.2} value={103.04} text={"Other"}/>
+                            {
+                                industryBreak.industryBreakDown &&
+                                industryBreak.industryBreakDown.slice(0, 4).map((item, index) => (
+                                    <ShareIndex strength={4 - index} pc={item.percentage} value={item.monetaryValue.toFixed(1)} text={item.industry}/>
+                                ))
+                            }
                         </div>
                         <div className="w-full h-full  flex ">
                             <div className="w-full border-r border-opacity-30 border-white grid grid-cols-[20%_80%]  h-full">
@@ -189,7 +207,7 @@ export const Portfolio = () => {
 
 
             </div>
-
+            <Footer />
         </div>
     )
 }

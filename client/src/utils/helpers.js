@@ -39,6 +39,11 @@ export const processEducationValues = (rawData) => {
     return res;
 }
 
+export const lastStockChange = (array) => {
+
+    return 1.2
+}
+
 export const processIMFValues = (rawData) => {
     const mappings = {
         "Country GDP based on PPP Valuation, USD Billions": "GDP (PPP, USD Bn)",

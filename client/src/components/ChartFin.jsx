@@ -1,16 +1,15 @@
 import {Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {GraphSuperETF} from "./tiny/GraphSuperETF.jsx";
+import {useContext, useEffect, useRef, useState} from "react";
+import {AuthContext} from "../context/AuthContext.jsx";
+import { format } from 'date-fns';
 
-export const ChartFin = () => {
-    const data = [
-        { month: 'Jan', Portfolio: 400, SP500: 240 },
-        { month: 'Feb', Portfolio: 300, SP500: 139 },
-        { month: 'Mar', Portfolio: 200, SP500: 980 },
-        { month: 'Apr', Portfolio: 278, SP500: 390 },
-        { month: 'May', Portfolio: 189, SP500: 480 },
-        { month: 'Jun', Portfolio: 239, SP500: 380 },
-        { month: 'Jul', Portfolio: 349, SP500: 430 }
-    ];
+export const ChartFin = ({industryBreak}) => {
+    const {user, authTokens} = useContext(AuthContext);
+    const [graphPoints, setGraphPoints] = useState([])
+    const timeRef = useRef("1W");
+    const [time, setTime] = useState("1W")
+
     const marketData = [
         {
             symbol: "SPY",
@@ -54,27 +53,49 @@ export const ChartFin = () => {
         }
     ];
 
+    const updateGraphData = (time) => {
+        fetch(`http://localhost:3000/portfolio/portfolioHistory?timePeriod=${time}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${authTokens.access}`
+            }
+        }).then(res => res.json())
+            .then(res => setGraphPoints(res.data))
+            .catch(err => console.error(err));
+    }
+
+    useEffect(() => {
+        updateGraphData("1W")
+
+    }, []);
+
     const CustomTooltip = ({ active, payload, label }) => {
         if (!active || !payload || !payload.length) {
             return null;
         }
-
         return (
             <div className="backdrop-blur-sm" style={{
                 backgroundColor: "rgba(100, 100, 100, 0.2)",
                 padding: '10px',
-                // border: '1px solid #ccc',
                 borderRadius: '5px'
             }}>
-                <p className="text-white">{label}</p>
-                {payload.map((item, index) => (
-                    <p key={index} style={{ color: item.color }}>
-                        {`${item.name}: ${item.value}`}
-                    </p>
-                ))}
+                <p className="text-white">{`Date: ${format(new Date(payload[0].payload.date), 'dd MMM yy')}`}</p>
+                {payload.map((item, index) => {
+                    return (
+                        <p key={index} style={{color: item.color}}>
+                            Portfolio Value: ${payload[0].payload.portfolioValue.toFixed(1)}
+                        </p>
+                    )
+                })}
             </div>
         );
     };
+
+    const updateTimeStep = (e) => {
+        updateGraphData(e.target.innerHTML);
+        setTime(e.target.innerHTML)
+    }
 
     return (
         <div className=" w-full h-full pr-8 grid grid-rows-[25%_65%_10%]">
@@ -84,14 +105,15 @@ export const ChartFin = () => {
                     <div className="flex">
                         <div className="w-20 h-full" />
 
-                        <div className="flex items-end w-auto pr-4 h-full text-white font-mono text-6xl">2,380.06</div>
+                        <div className="flex items-end w-auto pr-4 h-full text-white font-mono text-6xl">{industryBreak.total?.toFixed(2)}</div>
                         <div className="w-auto h-full font-bold text-green-700 text-3xl flex items-center">↑1.2%</div>
                     </div>
                     <div className="flex gap-2 w-1/4 place-items-end ">
-                        <div className="w-full h-1/2 flex hover:cursor-pointer hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-800">1D</div>
-                        <div className="w-full h-1/2 flex hover:cursor-pointer hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-600">1M</div>
-                        <div className="w-full h-1/2 flex hover:cursor-pointer hover:bg-opacity-20 bg-white bg-opacity-20 items-center justify-center text-white border-b-2 border-blue-400">1Y</div>
-                        <div className="w-full h-1/2 flex hover:cursor-pointer hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-200">5Y</div>
+                        <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "1D" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-900">1D</div>
+                        <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "1W" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-20 items-center justify-center text-white border-b-2 border-blue-800">1W</div>
+                        <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "1M" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-600">1M</div>
+                        <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "1Y" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-400">1Y</div>
+                        <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "5Y" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-200">5Y</div>
                     </div>
                 </div>
 
@@ -99,16 +121,11 @@ export const ChartFin = () => {
             <div className="-z-0">
                 <ResponsiveContainer>
                     <LineChart
-                        data={data}
-                        margin={{
-                            top: 20,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                        }}
+                        data={graphPoints}
+                        margin={{top: 20, right: 30, left: 20, bottom: 5}}
                     >
                         {/*<CartesianGrid strokeDasharray="3 3" />*/}
-                        <XAxis dataKey="month" axisLine={{stroke: '#EAF0F4'}} tick={{fill: '#EAF0F4'}}
+                        <XAxis tickFormatter={item => format(new Date(item), 'dd MMM yy')} dataKey="date" axisLine={{stroke: '#EAF0F4'}} tick={{fill: '#EAF0F4'}}
                         />
                         <YAxis axisLine={{stroke: 'rgba("0,0,0,0")'}} tick={{fill: '#EAF0F4'}}
                         />
@@ -116,7 +133,7 @@ export const ChartFin = () => {
                         <Legend/>
                         <Line
                             type="monotone"
-                            dataKey="Portfolio"
+                            dataKey="portfolioValue"
                             stroke="#f59e0b"
                             strokeWidth={2}
                             activeDot={{r: 8}}

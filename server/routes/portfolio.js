@@ -27,12 +27,12 @@ module.exports = (pool) => {
                     SELECT
                         i.user_id, i.ticker, i.amount, i.purchase_date, e.open AS purchase_price, eq.name AS equity_name, lp.last_price, e.industry
                     FROM investment i
-                             JOIN equities e
-                                  ON i.ticker = e.ticker AND i.purchase_date = e.date
-                             JOIN latest_price lp
-                                  ON i.ticker = lp.ticker
-                             JOIN equities eq
-                                  ON i.ticker = eq.ticker AND eq.date = lp.last_price_date
+                        JOIN equities e
+                            ON i.ticker = e.ticker AND i.purchase_date = e.date
+                        JOIN latest_price lp
+                            ON i.ticker = lp.ticker
+                        JOIN equities eq
+                            ON i.ticker = eq.ticker AND eq.date = lp.last_price_date
                     WHERE i.user_id = $1;
                 `,
                 [user_id]
@@ -46,6 +46,175 @@ module.exports = (pool) => {
             res.status(500).json({message: "Error fetching user details"});
         }
     })
+
+    router.get("/industry-distribution", verifyToken, async (req, res) => {
+        try {
+            const { user_id } = req.user;
+
+            const query = `
+            WITH latest_prices AS (
+                SELECT 
+                    e.ticker,
+                    e.close AS recent_close,
+                    e.industry,
+                    ROW_NUMBER() OVER (PARTITION BY e.ticker ORDER BY e.date DESC) AS rn
+                FROM 
+                    equities e
+            ),
+            user_investments AS (
+                SELECT 
+                    i.ticker,
+                    i.amount,
+                    lp.industry,
+                    lp.recent_close
+                FROM 
+                    investment i
+                    JOIN latest_prices lp ON i.ticker = lp.ticker
+                WHERE 
+                    i.user_id = $1
+                    AND lp.rn = 1
+            ),
+            industry_totals AS (
+                SELECT 
+                    industry,
+                    SUM(amount * recent_close) AS total_value
+                FROM 
+                    user_investments
+                GROUP BY 
+                    industry
+            ),
+            ranked_industries AS (
+                SELECT 
+                    industry,
+                    total_value,
+                    RANK() OVER (ORDER BY total_value DESC) AS rank
+                FROM 
+                    industry_totals
+            ),
+            grouped_industries AS (
+                SELECT 
+                    CASE 
+                        WHEN rank <= 3 THEN industry 
+                        ELSE 'Other' 
+                    END AS industry_group,
+                    total_value
+                FROM 
+                    ranked_industries
+            )
+            SELECT 
+                industry_group AS industry,
+                SUM(total_value) AS amount
+            FROM 
+                grouped_industries
+            GROUP BY 
+                industry_group
+            ORDER BY 
+                SUM(total_value) DESC;
+        `;
+
+            const result = await pool.query(query, [user_id]);
+
+            const totalInvestment = result.rows.reduce((sum, row) => sum + parseFloat(row.amount), 0);
+
+            const response = {
+                total: totalInvestment,
+                industryBreakDown: result.rows.map(row => ({
+                    industry: row.industry,
+                    percentage: `${((parseFloat(row.amount) / totalInvestment) * 100).toFixed(2)}%`,
+                    monetaryValue: parseFloat(row.amount)
+                }))
+            };
+
+            res.json(response);
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Error fetching industry breakdown" });
+        }
+    });
+
+    router.get("/portfolioHistory", verifyToken, async (req, res) => {
+        try {
+            const { timePeriod } = req.query;
+            const validPeriods = ["1D", "1W", "1M", "1Y", "5Y"];
+
+            if (!validPeriods.includes(timePeriod)) {
+                return res.status(400).json({ error: "Invalid time period. Use one of [1W, 1M, 1Y, 5Y]." });
+            }
+
+            const user_id = req.user.user_id;
+
+            const query = `
+        WITH t AS (
+            SELECT 
+                CURRENT_DATE - (n * $1::interval) AS period_date,
+                n
+            FROM generate_series(0, 8) AS n
+        ),
+        latest_prices_per_period AS (
+            SELECT 
+                i.ticker,
+                t.period_date,
+                MAX(e.date) AS latest_date
+            FROM 
+                investment i
+                CROSS JOIN t
+                JOIN equities e 
+                  ON i.ticker = e.ticker AND e.date <= t.period_date
+            WHERE 
+                i.user_id = $2
+            GROUP BY 
+                i.ticker, t.period_date
+        ),
+        portfolio_values AS (
+            SELECT 
+                lpp.period_date,
+                SUM(i.amount * e.close) AS total_portfolio_value
+            FROM 
+                latest_prices_per_period lpp
+                JOIN equities e 
+                  ON lpp.ticker = e.ticker AND lpp.latest_date = e.date
+                JOIN investment i 
+                  ON i.ticker = lpp.ticker
+            WHERE 
+                i.user_id = $2
+            GROUP BY 
+                lpp.period_date
+        )
+        SELECT 
+            period_date, 
+            COALESCE(total_portfolio_value, 0) AS total_portfolio_value
+        FROM 
+            portfolio_values
+        ORDER BY 
+            period_date;
+        `;
+
+            // Map timePeriod to PostgreSQL interval
+            const intervalMap = {
+                "1D": "2 days",
+                "1W": "7 days",
+                "1M": "1 month",
+                "1Y": "1 year",
+                "5Y": "5 years"
+            };
+
+            const result = await pool.query(query, [intervalMap[timePeriod], user_id]);
+
+            const formattedResult = result.rows.map(row => ({
+                date: row.period_date,
+                portfolioValue: parseFloat(row.total_portfolio_value)
+            }));
+
+            res.json({ timePeriod, data: formattedResult });
+        } catch (err) {
+            console.error("Error fetching portfolio history:", err);
+            res.status(500).json({ error: "An error occurred while fetching portfolio history." });
+        }
+    });
+
+
+
 
     // GET available stocks in dataset
     router.get("/equity", async (req, res) => {
