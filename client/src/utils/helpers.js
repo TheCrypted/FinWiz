@@ -85,7 +85,27 @@ export const generateChartData = (item) => {
     return data;
 };
 
-export  const processIMFPerformance = (rawData) => {
+export const calculateDayDiff = (data) => {
+    if(!data?.length) return 0
+    return (data[data.length-1].portfolioValue - data[data.length-2].portfolioValue).toFixed(2)
+}
+
+export const calculateTotalDiff = (data) => {
+    if(!data?.length) return 0
+    return (data[data.length-1].portfolioValue - data[0].portfolioValue).toFixed(2)
+}
+
+export const calculateTotalDiffPerc = (data) => {
+    if(!data?.length) return 0
+    return ((data[data.length-1].portfolioValue - data[0].portfolioValue)/data[0].portfolioValue * 100).toFixed(2)
+}
+
+export const calculateDayDiffPerc = (data) => {
+    if(!data?.length) return 0
+    return ((data[data.length-1].portfolioValue - data[data.length-2].portfolioValue)/data[data.length-2].portfolioValue * 100).toFixed(2)
+}
+
+export const processIMFPerformance = (rawData) => {
     const mappings = {
         "General Government Net Lending/Borrowing, USD Billions": "Govt Lending/Borrowing (USD Bn)",
         "General Government Primary Net Lending/Borrowing, USD Billions": "Primary Lending/Borrowing (USD Bn)",

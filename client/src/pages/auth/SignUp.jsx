@@ -1,6 +1,7 @@
 import {useMousePosition} from "../../context/MousePositionProvider.jsx";
 import {useRef} from "react";
 import {BorderMarq} from "../../utils/BorderMarq.jsx";
+import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
 export const SignUp = () => {
     const mousePos = useMousePosition();
@@ -17,7 +18,7 @@ export const SignUp = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:3000/auth/register", {
+            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/register`, {
                 method: "POST",
                 body: JSON.stringify(payload),
                 headers: {

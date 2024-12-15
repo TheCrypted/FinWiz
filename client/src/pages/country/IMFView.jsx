@@ -17,6 +17,7 @@ import {
 import {AuthContext} from "../../context/AuthContext.jsx";
 import {processIMFPerformance, processIMFValues} from "../../utils/helpers.js";
 import ReactTextTransition from "react-text-transition";
+import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -51,7 +52,7 @@ export const IMFView = () => {
 
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getIMFPerformance/${country_name}`)
+    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIMFPerformance/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         console.log("API Response:", resJson); // Debugging
@@ -64,7 +65,7 @@ export const IMFView = () => {
   }, [country_name]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getIMFInfo/${country_name}`)
+    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIMFInfo/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         console.log("API Response:", resJson); // Debugging
@@ -92,9 +93,12 @@ export const IMFView = () => {
                className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
             Portfolio
           </div>
-          <div onClick={() => navigate("/signin")}
+          <div onClick={() => {
+            if (authTokens?.access) logout();
+            else navigate("/signin")
+          }}
                className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
-            Sign In
+            {authTokens?.access ? "Sign out" : "Sign In"}
           </div>
         </div>
         <div className="w-full place-items-center h-[92%] grid grid-cols-[45%_55%]">

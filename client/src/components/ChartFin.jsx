@@ -3,6 +3,8 @@ import {GraphSuperETF} from "./tiny/GraphSuperETF.jsx";
 import {useContext, useEffect, useRef, useState} from "react";
 import {AuthContext} from "../context/AuthContext.jsx";
 import { format } from 'date-fns';
+import {calculateDayDiffPerc} from "../utils/helpers.js";
+import {HOST_AWS, PORT_AWS} from "../backend.json";
 
 export const ChartFin = ({industryBreak}) => {
     const {user, authTokens} = useContext(AuthContext);
@@ -54,7 +56,7 @@ export const ChartFin = ({industryBreak}) => {
     ];
 
     const updateGraphData = (time) => {
-        fetch(`http://localhost:3000/portfolio/portfolioHistory?timePeriod=${time}`, {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=${time}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -105,8 +107,8 @@ export const ChartFin = ({industryBreak}) => {
                     <div className="flex">
                         <div className="w-20 h-full" />
 
-                        <div className="flex items-end w-auto pr-4 h-full text-white font-mono text-6xl">{industryBreak.total?.toFixed(2)}</div>
-                        <div className="w-auto h-full font-bold text-green-700 text-3xl flex items-center">↑1.2%</div>
+                        <div className="flex items-end w-auto pr-4 h-full text-white font-mono text-6xl">{industryBreak?.total?.toFixed(2)}</div>
+                        <div className="w-auto h-full font-bold text-green-700 text-3xl flex items-center">↑{calculateDayDiffPerc(graphPoints)}%</div>
                     </div>
                     <div className="flex gap-2 w-1/4 place-items-end ">
                         <div style={{backgroundColor: `rgba(255, 255, 255, ${time === "1D" ? 0.2 : 0})`}} onClick={updateTimeStep} className="w-full h-1/2 flex hover:cursor-pointer !hover:bg-opacity-20 bg-white bg-opacity-0 items-center justify-center text-white border-b-2 border-blue-900">1D</div>

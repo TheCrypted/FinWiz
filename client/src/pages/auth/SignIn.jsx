@@ -3,6 +3,7 @@ import {BorderMarq} from "../../utils/BorderMarq.jsx";
 import {useContext, useRef} from "react";
 import {AuthContext} from "../../context/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
+import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
 
 export const SignIn = () => {
@@ -21,7 +22,7 @@ export const SignIn = () => {
 
 
         try {
-            const response = await fetch("http://localhost:3000/auth/login", {
+            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/login`, {
                 method: "POST",
                 body: JSON.stringify(payload),
                 headers: {

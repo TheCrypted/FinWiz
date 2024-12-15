@@ -7,11 +7,18 @@ import {AuthContext} from "../../context/AuthContext.jsx";
 import {Collapse} from "@mui/material";
 import {AddPopup} from "../../components/tiny/AddPopup.jsx";
 import {Footer} from "../../components/Footer.jsx";
+import {
+    calculateDayDiff,
+    calculateDayDiffPerc,
+    calculateTotalDiff,
+    calculateTotalDiffPerc
+} from "../../utils/helpers.js";
+import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
 
 export const Portfolio = () => {
     const navigate = useNavigate();
-    const {user, authTokens} = useContext(AuthContext)
+    const {user, authTokens, logout} = useContext(AuthContext)
     const [userInvestments, setUserInvestments] = useState([])
     const [search, setSearch] = useState(false)
     const searchInputRef = useRef(null);
@@ -19,9 +26,10 @@ export const Portfolio = () => {
     const [popup, setPopup] = useState(false)
     const [activeTicker, setActiveTicker] = useState(null)
     const [industryBreak, setIndustryBreak] = useState({})
+    const [graphPoints, setGraphPoints] = useState([])
 
     const getInvestments = () => {
-        fetch("http://localhost:3000/portfolio/investment", {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -29,19 +37,28 @@ export const Portfolio = () => {
             }
         }).then(res => res.json())
             .then(res => setUserInvestments(res.investments))
-            .catch(e => console.log(e))
+            .catch(e => navigate("/signin"))
     }
 
     const getIndustryDistribution = () => {
-        fetch("http://localhost:3000/portfolio/industry-distribution", {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/industry-distribution`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "authorization": `Bearer ${authTokens.access}`,
             }
-        }).then(res => res.json())
-            .then(res => setIndustryBreak(res))
-            .catch(err => console.error(err));
+        }).then(res => {
+            if(res.status === 403) {
+                navigate("/signin");
+                return;
+            }
+
+            return res.json()
+        })
+            .then(res => {
+                setIndustryBreak(res)
+            })
+            .catch(err => navigate("/signin"));
     }
 
     useEffect(() => {
@@ -51,6 +68,22 @@ export const Portfolio = () => {
         if(!authTokens?.access) {
             navigate("/signin")
         }
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/portfolioHistory?timePeriod=1M`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${authTokens.access}`
+            }
+        }).then(res => {
+            if(res.status === 403) {
+                navigate("/signin");
+                return;
+            }
+            return res.json()
+        })
+            .then(res => setGraphPoints(res.data))
+            .catch(err => console.error(err));
+
         getInvestments();
         getIndustryDistribution();
     }, []);
@@ -64,7 +97,7 @@ export const Portfolio = () => {
 
     const onInput = () => {
         if(searchInputRef.current.value) {
-            fetch(`http://localhost:3000/portfolio/equity?prefix=${searchInputRef.current.value}`)
+            fetch(`http://${HOST_AWS}:${PORT_AWS}/portfolio/equity?prefix=${searchInputRef.current.value}`)
                 .then(res => res.json())
                 .then(res => setSearchResults(res.equities))
         } else {
@@ -74,21 +107,23 @@ export const Portfolio = () => {
 
     return (
         <div className="w-full h-full overflow-x-hidden bg-slate-900 overflow-y-auto scrollbar">
-            <AddPopup ticker={activeTicker} active={popup} setActive={setPopup} />
+            <AddPopup getInvestments={getInvestments} getIndustryDistribution={getIndustryDistribution} ticker={activeTicker} active={popup} setActive={setPopup}/>
             <div
                 className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                 <div onClick={() => navigate("/")}
-                    className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
+                     className="w-full h-full hover:underline transition-all hover:cursor-pointer flex items-center pl-8">
                     Hi, {user?.username}
                 </div>
                 <div className="w-full h-full relative">
-                    <input onChange={onInput} ref={searchInputRef} onFocus={() => setSearch(true)} onBlur={() => setSearch(false)} placeholder="Search Equities"
+                    <input onChange={onInput} ref={searchInputRef} onFocus={() => setSearch(true)}
+                           onBlur={() => setSearch(false)} placeholder="Search Equities"
                            className="w-full h-full font-mono placeholder:font-serif rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
                     <Collapse in={search} timeout="auto" unmountOnExit className="absolute z-20 top-16 w-full h-full">
                         <div className="w-full h-full backdrop-blur-xl ">
                             {
                                 searchResults.map(item => (
-                                    <div onClick={() => addInvestment(item.ticker)} key={item.ticker} className="w-full font-mono hover:underline hover:cursor-pointer justify-between px-4 bg-white bg-opacity-5 py-2 grid grid-cols-[8%_55%_37%]">
+                                    <div onClick={() => addInvestment(item.ticker)} key={item.ticker}
+                                         className="w-full font-mono hover:underline hover:cursor-pointer justify-between px-4 bg-white bg-opacity-5 py-2 grid grid-cols-[8%_55%_37%]">
 
                                         <div className="flex items-center justify-start text-2xl">{item.ticker}
                                         </div>
@@ -111,46 +146,65 @@ export const Portfolio = () => {
                      className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
                     Portfolio
                 </div>
-                <div onClick={() => navigate("/signin")}
+                <div onClick={() => {
+                    if(authTokens?.access) logout();
+                    else navigate("/signin")
+                }}
                      className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
-                    Sign In
+                    {authTokens?.access ? "Sign out" : "Sign In"}
                 </div>
             </div>
             <div className="h-[85%] w-full pl-12 pr-12 grid grid-cols-[70%_30%]">
                 <ChartFin industryBreak={industryBreak}/>
                 <div className="cursor-auto w-full h-full pl-2 pr-2 flex items-center justify-center">
-                    <div className="w-full px-6 pb-6 h-3/4 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
+                    <div
+                        className="w-full px-6 pb-6 h-3/4 border-white border-opacity-10 rounded-xl grid grid-rows-[15%_23%_4%_2%_4%_42%_10%]">
                         <div className="flex items-center text-white text-2xl ">Portfolio Highlights</div>
                         <div className="w-full flex gap-4">
-                            <div className="w-full pl-4 h-full bg-red-800 bg-opacity-30 rounded-xl">
-                                <div className="text-red-800 h-1/2 text-3xl font-bold flex items-end pb-1">-$22.71</div>
-                                <div className="text-red-800 h-1/2 text-2xl flex items-start pt-1">↓ 1.63%</div>
+                            <div className="w-full text-green-700 pl-4 h-full bg-green-700 bg-opacity-30 rounded-xl relative">
+                                <div
+                                    className="h-1/2 text-3xl font-bold flex items-end pb-1">+${calculateDayDiff(graphPoints)}</div>
+                                <div
+                                    className="h-1/2 text-2xl flex items-start pt-1">↑ {calculateDayDiffPerc(graphPoints)}%
+                                </div>
+                                <div className="absolute right-0 [writing-mode:vertical-lr] font-bold border-l border-green-700 top-0 flex items-center justify-center font-mono text-xl h-full w-1/6">
+                                    MONTH
+                                </div>
                             </div>
-                            <div className="w-full pl-2 h-full bg-green-700 bg-opacity-30 rounded-xl">
-                                <div className="text-green-700 h-1/2 text-3xl font-bold flex items-end pb-1">+$42.32</div>
-                                <div className="text-green-700 h-1/2 text-2xl flex items-start pt-1">↑ 3.19%</div>
+                            <div className="w-full text-green-700 pl-4 h-full bg-green-700 bg-opacity-30 rounded-xl relative">
+                                <div
+                                    className="h-1/2 text-3xl font-bold flex items-end pb-1">+${calculateTotalDiff(graphPoints)}</div>
+                                <div
+                                    className="h-1/2 text-2xl flex items-start pt-1">↑ {calculateTotalDiffPerc(graphPoints)}%
+                                </div>
+                                <div
+                                    className="absolute right-0 [writing-mode:vertical-lr] font-bold border-l border-green-700 top-0 flex items-center justify-center font-mono text-xl h-full w-1/6">
+                                    YEAR
+                                </div>
                             </div>
                         </div>
                         <div/>
                         <div className="w-full h-full flex rounded-full overflow-hidden  bg-white">
                             {
-                                industryBreak.industryBreakDown &&
+                                industryBreak?.industryBreakDown &&
                                 industryBreak.industryBreakDown.slice(0, 4).map((item, index) => (
-                                    <div style={{width: item.percentage}} className={`bg-blue-${(4-index)*2}00`}/>
+                                    <div style={{width: item.percentage}} className={`bg-blue-${(4 - index) * 2}00`}/>
                                 ))
                             }
                         </div>
-                        <div />
+                        <div/>
                         <div className="w-full h-full flex flex-col gap-2">
                             {
-                                industryBreak.industryBreakDown &&
+                                industryBreak?.industryBreakDown &&
                                 industryBreak.industryBreakDown.slice(0, 4).map((item, index) => (
-                                    <ShareIndex strength={4 - index} pc={item.percentage} value={item.monetaryValue.toFixed(1)} text={item.industry}/>
+                                    <ShareIndex strength={4 - index} pc={item.percentage}
+                                                value={item.monetaryValue.toFixed(1)} text={item.industry}/>
                                 ))
                             }
                         </div>
                         <div className="w-full h-full  flex ">
-                            <div className="w-full border-r border-opacity-30 border-white grid grid-cols-[20%_80%]  h-full">
+                            <div
+                                className="w-full border-r border-opacity-30 border-white grid grid-cols-[20%_80%]  h-full">
                                 <div className="w-full h-full flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="green"
                                          className="size-6">
@@ -202,12 +256,65 @@ export const Portfolio = () => {
                             userInvestments?.map((item) => <StockMin data={item}/>)
                         }
                     </div>
+
                 </div>
-                <div className="w-full h-20"/>
+                <div className="w-full h-28"/>
+                <div className=" w-full h-2/5 pr-8 flex gap-16">
+                    <div
+                        className="cursor-pointer text-white w-1/5 h-full grid grid-rows-[60%_20%_20%] opacity-60 transition-all hover:underline hover:opacity-100">
+                        <div
+                            style={{backgroundImage: `url("https://s.yimg.com/uu/api/res/1.2/4UjqlVd5zf0ehZVH2a808Q--~B/Zmk9c3RyaW07aD0yNTI7cT04MDt3PTMzNjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/c6c28d56e5dc81af3ae326088256d884.cf.webp")`}}
+                            className="bg-cover w-full h-full"/>
+                        <a className="text-justify text-white font-serif pt-2 text-2xl">Major Apple chip supplier is
+                            expanding into the U.S.
+                        </a>
+                        <div className="flex text-gray-400 font-mono pt-2">
+                            TheStreet
+                        </div>
+                    </div>
+                    <div
+                        className="cursor-pointer w-1/5 h-full grid grid-rows-[60%_20%_20%] text-white opacity-60 transition-all hover:underline hover:opacity-100">
+                        <div
+                            style={{backgroundImage: `url("https://s.yimg.com/uu/api/res/1.2/VtZX_048Jw0kEH9fRAm3yw--~B/Zmk9c3RyaW07aD0yNTI7cT04MDt3PTMzNjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/benzinga_79/4c61323f3b3f07bb1f62e39ae6d47d6c.cf.webp")`}}
+                            className="bg-cover w-full h-full"/>
+                        <a className="text-justify text-white font-serif pt-2 text-2xl">Major Apple chip supplier is
+                            expanding into the U.S.
+                        </a>
+                        <div className="flex text-gray-400 font-mono pt-2">
+                            TheStreet
+                        </div>
+                    </div>
+                    <div
+                        className="cursor-pointer w-1/5 h-full grid grid-rows-[60%_20%_20%] text-white opacity-60 transition-all hover:underline hover:opacity-100">
+                        <div
+                            style={{backgroundImage: `url("https://s.yimg.com/uu/api/res/1.2/XUWvgPdPBmeCo6bdpd0i0Q--~B/Zmk9c3RyaW07aD0yNTI7cT04MDt3PTMzNjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/motleyfool.com/b3e0bf479403f530429503988d860396.cf.webp")`}}
+                            className="bg-cover w-full h-full"/>
+                        <a className="text-justify text-white font-serif pt-2 text-2xl">Prediction: AMD Stock Will Soar
+
+                        </a>
+                        <div className="flex text-gray-400 font-mono pt-2">
+                            TheStreet
+                        </div>
+                    </div>
+                    <div
+                        className="cursor-pointer w-1/5 h-full grid grid-rows-[60%_20%_20%] text-white opacity-60 transition-all hover:underline hover:opacity-100">
+                        <div
+                            style={{backgroundImage: `url("https://s.yimg.com/uu/api/res/1.2/7uKc39fov6Oe_84WN9mAwg--~B/Zmk9c3RyaW07aD0yNTI7cT04MDt3PTMzNjthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2024-12/e0b4dbb0-b73a-11ef-aabb-dfa9fd85c7ad.cf.webp")`}}
+                            className="bg-cover w-full h-full"/>
+                        <a className="text-justify text-white font-serif pt-2 text-2xl">Forget the dealership: You can
+                            now buy a Hyundai
+                        </a>
+                        <div className="flex text-gray-400 font-mono pt-2">
+                            TheStreet
+                        </div>
+                    </div>
+                </div>
 
 
             </div>
-            <Footer />
+            <div className="w-full h-20"/>
+
+            <Footer/>
         </div>
     )
 }

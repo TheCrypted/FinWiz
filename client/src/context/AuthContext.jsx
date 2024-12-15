@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import {HOST_AWS, PORT_AWS} from "../backend.json"
 
 export const AuthContext = createContext({
     user: null,
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const getUser = (token) => {
-        fetch("http://localhost:3000/auth/get_user", {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -49,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = (tokens) => {
         setAuthTokens(tokens);
-        fetch("http://localhost:3000/auth/get_user", {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
             method: "GET",
             headers: {
                 'authorization': 'Bearer ' + tokens.access,
@@ -68,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateToken = async () => {
         try {
-            const response = await fetch('http://localhost:3000/auth/refresh/', {
+            const response = await fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/refresh/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 setAuthTokens(data);
-                fetch("http://localhost:3000/auth/get_user", {
+                fetch(`http://${HOST_AWS}:${PORT_AWS}/auth/get_user`, {
                     method: "GET",
                     headers: {
                         'authorization': 'Bearer ' + authTokens.access,

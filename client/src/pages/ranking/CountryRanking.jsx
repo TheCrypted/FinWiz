@@ -12,12 +12,12 @@ import {
     TableRow,
     Collapse
 } from '@mui/material';
-import { red } from '@mui/material/colors';
 import {AuthContext} from "../../context/AuthContext.jsx";
 import ReactTextTransition from "react-text-transition";
 import {useNavigate} from "react-router-dom";
 import {NewsArticle} from "../../components/tiny/NewsArticle.jsx";
 import {Footer} from "../../components/Footer.jsx";
+import {HOST_AWS, PORT_AWS} from "../../backend.json"
 
 export const CountryRanking = () => {
     //ranking table for top countries for a given education indicator code
@@ -33,6 +33,8 @@ export const CountryRanking = () => {
     const [search, setSearch] = useState(false)
     const searchInputRef = useRef(null);
     const indicatorRef = useRef([]);
+    const [newsArticles, setNewsArticles] = useState(
+        [{"imageUrl":"https://ichef.bbci.co.uk/news/1024/cpsprodpb/e89a/live/5040abd0-ba6a-11ef-aff0-072ce821b6ab.jpg.webp","thumbnailTitle":"Trump gets $15m in ABC News defamation case","description":"The network will also publish a statement expressing \"regret\" for statements by George Stephanopoulos.","url":"https://www.bbc.com/news/articles/cgrw57q4y9do"},{"imageUrl":"https://www.politico.eu/cdn-cgi/image/width=1200,height=675,fit=crop,quality=80,onerror=redirect,format=auto/wp-content/uploads/2020/11/23/GettyImages-541872954.jpg","thumbnailTitle":"US officials in 'direct contact' with victorious Syria rebels","description":"Secretary of State Antony Blinken confirms contact with the HTS group, despite it still being on the US terrorism list.","url":"https://www.bbc.com/news/articles/c5y46713z21o"},{"imageUrl":"https://ichef.bbci.co.uk/news/800/cpsprodpb/56bb/live/0bebe950-ba1e-11ef-8f2f-e59e2ffa2d0d.jpg.webp","thumbnailTitle":"Fears of heavy death toll after cyclone hits island Mayotte","description":"There are reports of severe damage on the French Indian Ocean territory after it was struck by Cyclone Chido.","url":"https://www.bbc.com/news/articles/c2ldkg59j15o"}]    )
     //ranking table for combined education & imf performance
     //no search function needed
     const [topCountriesData, setTopCountriesData] = useState([]);
@@ -40,7 +42,7 @@ export const CountryRanking = () => {
     const [topStocksData, setTopStocksData] = useState([]);
 
     const getCountryWindow = (country) => {
-        fetch(`http://localhost:3000/getCountryWindow?country=${country}`, {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=${country}`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => setCountryWindow(res.window_info[0]))
@@ -61,23 +63,23 @@ export const CountryRanking = () => {
     }
 
     const updateIMFData = (newCode, name) => {
-        fetch(`http://localhost:3000/getTopCountriesIMF/${newCode}`)
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesIMFData(resJson.imf_info));
-        fetch(`http://localhost:3000/getTopCountriesIMF/${newCode}?order=bottom`)
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}?order=bottom`)
             .then((res) => res.json())
             .then((resJson) => setBottomCountriesIMFData(resJson.imf_info));
         if(name) searchInputRef.current.value = name;
     }
 
     useEffect(() => {
-        fetch(`http://localhost:3000/getCountryWindow?country=Germany`, {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=Germany`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => setCountryWindow(res.window_info[0]))
             .catch(err => console.error(err));
 
-        fetch(`http://localhost:3000/indicators`, {
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/indicators`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => {
@@ -85,20 +87,26 @@ export const CountryRanking = () => {
                 setIndicators(res)
             })
             .catch(err => console.error(err));
+
+        fetch("http://${HOST_AWS}:${PORT_AWS}/bbc-news", {
+            method: "GET"
+        }).then(res => res.json())
+            .then(res => console.log(res))
+            .catch(err => console.error(err));
     }, []);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/getTopCountriesEducation/${indicatorEduCode}`)
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesEducation/${indicatorEduCode}`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesEduData(resJson.education_info));
 
         updateIMFData('PPPGDP');
 
-        fetch(`http://localhost:3000/getTopCountriesCombined`)
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopCountriesCombined`)
             .then((res) => res.json())
             .then((resJson) => setTopCountriesData(resJson.rank_info));
 
-        fetch(`http://localhost:3000/getTopStocksPerCountry`)
+        fetch(`http://${HOST_AWS}:${PORT_AWS}/getTopStocksPerCountry`)
             .then((res) => res.json())
             .then((resJson) => setTopStocksData(resJson.rank_stock_info));
 
@@ -168,9 +176,12 @@ export const CountryRanking = () => {
             <div className="w-full h-24 bg-slate-900"/>
             <div className="w-full pl-8 h-full flex bg-slate-900">
                 <div className="w-1/3 flex flex-col gap-12">
-                    <NewsArticle />
-                    <NewsArticle />
-                    <NewsArticle />
+                    {
+                        newsArticles.map(item => (<NewsArticle item={item} /> ))
+                    }
+                    {/*<NewsArticle />*/}
+                    {/*<NewsArticle />*/}
+                    {/*<NewsArticle />*/}
                 </div>
                 <div className="w-2/3 h-full pl-8 text-2xl font-serif flex flex-col text-white items-center">
                     <div className="w-full h-1/5" />

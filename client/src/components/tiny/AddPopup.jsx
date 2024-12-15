@@ -2,7 +2,7 @@ import {useContext, useEffect, useRef, useState} from "react";
 import DatePicker from "react-date-picker";
 import {AuthContext} from "../../context/AuthContext.jsx";
 
-export const AddPopup = ({ticker, active, setActive}) => {
+export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustryDistribution}) => {
     const [price, setPrice] = useState(0);
     const volumeRef = useRef(null);
     const basePrice = useRef(0);
@@ -36,10 +36,13 @@ export const AddPopup = ({ticker, active, setActive}) => {
             },
             body: JSON.stringify({date, amount: parseFloat(volumeRef.current.value || "1"), ticker}),
         }).then(res => res.json()
-            .then(res => console.log(res.message)))
+            .then(res => {
+                getInvestments();
+                getIndustryDistribution();
+                console.log(res.message)
+            }))
             .catch(e => console.log(e.message));
         setActive(false)
-
     }
 
     return (

@@ -193,8 +193,12 @@ export const Home = () => {
                 <div onClick={() => navigate("/portfolio")} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
                     Portfolio
                 </div>
-                <div onClick={() => navigate("/signin")} className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
-                    Sign In
+                <div onClick={() => {
+                    if (authTokens?.access) logout();
+                    else navigate("/signin")
+                }}
+                     className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
+                    {authTokens?.access ? "Sign out" : "Sign In"}
                 </div>
             </div>
             {selectedPolygon && <div onClick={e => {
@@ -203,7 +207,7 @@ export const Home = () => {
                 globeEl.current.controls().autoRotate = true;
             }} className="w-1/4  h-full flex items-end absolute">
                 <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
-                    <InfoCard factCard={factCard.slice(0, 4)} key={0} country={selectedPolygon?.properties.adm0_iso}/>
+                <InfoCard factCard={factCard.slice(0, 4)} key={0} country={selectedPolygon?.properties.sovereignt}/>
                 </div>
             </div>}
             {selectedPolygon && <div onClick={e => {
@@ -212,7 +216,7 @@ export const Home = () => {
                 globeEl.current.controls().autoRotate = true;
             }} className="w-1/4 h-full flex right-0 items-end absolute">
                 <div className="w-full pb-12 absolute bottom-0 h-1/4 ">
-                    <InfoCard factCard={secondfactCard} key={1} right={true} country={selectedPolygon?.properties.adm0_iso}/>
+                    <InfoCard factCard={secondfactCard} key={1} right={true} country={selectedPolygon?.properties.sovereignt}/>
                 </div>
             </div>}
         </div>

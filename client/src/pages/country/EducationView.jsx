@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import {useNavigate, useParams} from "react-router-dom";
 import {Footer} from "../../components/Footer.jsx";
+import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -55,7 +56,7 @@ export const EducationView = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getPercentageDiffEducation/${country_name}`)
+    fetch(`http://${HOST_AWS}:${PORT_AWS}/getPercentageDiffEducation/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         if (resJson.percentage_difference) {
@@ -73,7 +74,7 @@ export const EducationView = () => {
 
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getEducationInfo/${country_name}`)
+    fetch(`http://${HOST_AWS}:${PORT_AWS}/getEducationInfo/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => {
         getEducationValues(resJson.education_info || []); // Extract imf_info array
@@ -86,7 +87,7 @@ export const EducationView = () => {
   }, [country_name]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/getIncreasingIndicators/${country_name}`)
+    fetch(`http://${HOST_AWS}:${PORT_AWS}/getIncreasingIndicators/${country_name}`)
       .then((res) => res.json())
       .then((resJson) => setImprovedEduData(resJson.improv_edu_info));
   }, [country_name]);
@@ -106,19 +107,21 @@ export const EducationView = () => {
                className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center ">
             Portfolio
           </div>
-          <div onClick={() => navigate("/signin")}
+          <div onClick={() => {
+            if (authTokens?.access) logout();
+            else navigate("/signin")
+          }}
                className="w-full h-full hover:underline transition-all hover:cursor-pointer flex justify-end items-center pr-8">
-            Sign In
+            {authTokens?.access ? "Sign out" : "Sign In"}
           </div>
         </div>
         <div className="w-full place-items-center h-[88%] grid grid-cols-[45%_55%]">
           <div className="pl-12 flex flex-col w-full h-auto text-xl text-gray-300 font-mono pr-4">
-            <div className="text-gray-400 w-full border-b border-white border-opacity-20 grid grid-cols-[30%_30%_40%] p-4">
+            <div
+                className="text-gray-400 w-full border-b border-white border-opacity-20 grid grid-cols-[30%_30%_40%] p-4">
               <div className="flex items-center justify-start">Age Range</div>
               <div className="flex items-center ">Gender</div>
-              {/*<div>{row.year || "N/A"}</div>*/}
               <div className="flex items-center justify-end">Mean Years in School</div>
-              {/*<div>{row.year_change || "N/A"}</div>*/}
             </div>
             {PercentDifference ? (
                 PercentDifference.filter(item => !item.indicator_name.includes("Total")).map((row, i) => {
