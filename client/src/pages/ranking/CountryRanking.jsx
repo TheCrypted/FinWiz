@@ -42,7 +42,8 @@ export const CountryRanking = () => {
     const [topStocksData, setTopStocksData] = useState([]);
 
     const getCountryWindow = (country) => {
-        fetch(`http://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=${country}`, {
+        console.log(country)
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/getCountryWindow?country=${country}`, {
             method: 'GET',
         }).then(res => res.json())
             .then(res => setCountryWindow(res.window_info[0]))

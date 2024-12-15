@@ -1,6 +1,7 @@
 import {useContext, useEffect, useRef, useState} from "react";
 import DatePicker from "react-date-picker";
 import {AuthContext} from "../../context/AuthContext.jsx";
+import {HOST_AWS, PORT_AWS} from "../../backend.json"
 
 export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustryDistribution}) => {
     const [price, setPrice] = useState(0);
@@ -14,7 +15,7 @@ export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustry
     }
 
     useEffect(() => {
-        fetch(`https://localhost:3000/portfolio/equity/${ticker}?expected=1`, {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/equity/${ticker}?expected=1`, {
             method: "GET",
             headers: {
                 'content-type': 'application/json',
@@ -28,7 +29,7 @@ export const AddPopup = ({ticker, active, setActive, getInvestments, getIndustry
     const submitForm = (e) => {
         e.preventDefault()
         const token = authTokens.access;
-        fetch("https://localhost:3000/portfolio/investment", {
+        fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
             method: "POST",
             headers: {
                 'authorization': `Bearer ${token}`,

@@ -277,11 +277,10 @@ export const Portfolio = () => {
                         <div
                             style={{backgroundImage: `url("https://s.yimg.com/uu/api/res/1.2/VtZX_048Jw0kEH9fRAm3yw--~B/Zmk9c3RyaW07aD0yNTI7cT04MDt3PTMzNjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/benzinga_79/4c61323f3b3f07bb1f62e39ae6d47d6c.cf.webp")`}}
                             className="bg-cover w-full h-full"/>
-                        <a className="text-justify text-white font-serif pt-2 text-2xl">Major Apple chip supplier is
-                            expanding into the U.S.
+                        <a className="text-justify text-white font-serif pt-2 text-2xl">Abandoned Train Car Transformed Into Airbnb.
                         </a>
                         <div className="flex text-gray-400 font-mono pt-2">
-                            TheStreet
+                            Benzinga
                         </div>
                     </div>
                     <div
