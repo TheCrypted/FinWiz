@@ -179,7 +179,7 @@ export const EducationView = () => {
             <Radar name="indicator_name" dataKey="indicator_value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
           </RadarChart>
         </ResponsiveContainer>
-      <Footer />
+      <Footer country={country_name}/>
       </div>
   );
 };

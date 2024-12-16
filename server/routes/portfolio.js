@@ -47,6 +47,7 @@ module.exports = (pool) => {
         }
     })
 
+    // Get industry-wise
     router.get("/industry-distribution", verifyToken, async (req, res) => {
         try {
             const { user_id } = req.user;

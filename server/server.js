@@ -12,6 +12,17 @@ app.use(cors({
   origin: '*',
 }));
 
+export async function connectToDatabase() {
+  try {
+    await client.connect();
+    const db = client.db('your_database_name');
+    return db;
+  } catch (error) {
+    console.error('Error connecting to the database', error);
+    throw error;
+  }
+}
+
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
 // app.get('/getEducationInfo/:country_name', country.getEducationInfo);

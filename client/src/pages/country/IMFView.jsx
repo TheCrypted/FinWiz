@@ -18,6 +18,7 @@ import {AuthContext} from "../../context/AuthContext.jsx";
 import {processIMFPerformance, processIMFValues} from "../../utils/helpers.js";
 import ReactTextTransition from "react-text-transition";
 import {HOST_AWS, PORT_AWS} from "../../backend.json";
+import {Footer} from "../../components/Footer.jsx";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -78,7 +79,7 @@ export const IMFView = () => {
   }, [country_name]);
 
   return (
-      <div className="overflow-hidden w-full h-full bg-slate-900 text-white">
+      <div className=" w-full h-full bg-slate-900 text-white">
         <div
             className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
           <div onClick={() => navigate("/")}
@@ -146,6 +147,7 @@ export const IMFView = () => {
           </ResponsiveContainer>
           </div>
         </div>
+        <Footer country={country_name} />
       </div>
   );
 };
