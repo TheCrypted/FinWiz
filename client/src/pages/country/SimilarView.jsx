@@ -21,6 +21,7 @@ export const SimilarView = () => {
 
     const [SimilarEducationCountries, getSimilarEducationCountries] = useState([]);
 
+    //fetch relevant queries data 
     useEffect(() => {
         fetch(`http://localhost:3000/getSimilarEducationCountries/${country_name}`)
           .then((res) => {
@@ -60,6 +61,7 @@ export const SimilarView = () => {
                 </TableRow>
             </TableHead>
             <TableBody>
+              {/* display in table form similar countries & their quantitative differences in performance */}
                 {Array.isArray(SimilarEducationCountries) && SimilarEducationCountries.length > 0 ? (
                     SimilarEducationCountries.map((row, i) => (
                     <TableRow key={i}>

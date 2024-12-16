@@ -5,6 +5,7 @@ const router = express.Router();
 
 module.exports = (pool) => {
     // Route for complex query 9
+    //summary stats for given country
     router.get("/home/:country_name", async (req, res) => {
         try {
             const { country_name } = req.params;

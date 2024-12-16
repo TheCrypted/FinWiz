@@ -42,6 +42,7 @@ export const IMFView = () => {
   const [chart, setChart] = useState(0)
   const navigate = useNavigate();
 
+  //converting data types
   const formatPerformanceData = (data) => {
     return data.map(item => ({
       name: item.indicator_name.split(",")[0],
@@ -52,6 +53,7 @@ export const IMFView = () => {
   };
 
 
+  //fetch relevant imf stats for the given country
   useEffect(() => {
     fetch(`https://${HOST_AWS}:${PORT_AWS}/getIMFPerformance/${country_name}`)
       .then((res) => res.json())
@@ -102,6 +104,7 @@ export const IMFView = () => {
             {authTokens?.access ? "Sign out" : "Sign In"}
           </div>
         </div>
+        {/* dynamic bar graph to compare country performance to global performance */}
         <div className="w-full place-items-center h-[92%] grid grid-cols-[45%_55%]">
           <div className="pl-4 flex flex-col w-full h-auto  text-xl text-gray-300 font-mono pr-4">
             {Array.isArray(IMFPerformance) && IMFPerformance.length > 0 ? (

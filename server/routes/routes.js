@@ -9,6 +9,7 @@ const cheerio = require('cheerio');
 const {connectToDatabase} = require("../server");
 
 module.exports = (pool) => {
+    //api call to bbc news pages 
     router.get('/bbc-news', async (req, res) => {
         try {
             const db = await connectToDatabase();

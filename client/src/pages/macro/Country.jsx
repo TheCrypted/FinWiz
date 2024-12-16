@@ -80,6 +80,7 @@ export const Country = () => {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
+    //globe animation 
     useEffect(() => {
         if (globeRef.current) {
             globeRef.current.controls().autoRotate = true;
@@ -95,6 +96,7 @@ export const Country = () => {
     const countryName = searchParams.get('code');
 
     return (
+        /* globe component */
         <div className="bg-black overflow-hidden" ref={containerRef}>
             <div className="absolute bg-black">
                 <Globe
@@ -107,6 +109,7 @@ export const Country = () => {
                     backgroundColor="rgba(0, 0, 0, 0)"
                 />
             </div>
+            {/* nav bar */}
             <div className="absolute bg-black bg-opacity-60 scrollbar overflow-y-auto w-full h-full">
                 <div className="bg-black bg-opacity-20 backdrop-blur-md w-full z-20 top-0 h-16 grid grid-cols-[20%_60%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
                     <div onClick={() => navigate("/")}

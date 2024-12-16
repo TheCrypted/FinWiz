@@ -3,6 +3,7 @@ const router = express.Router();
 
 module.exports = (pool) => {
     // route for simple query 1
+    //get given indicator value
     router.get("/getEducationInfo/:country_name", async (req, res) => {
         try {
             const {country_name} = req.params;
@@ -37,6 +38,7 @@ module.exports = (pool) => {
     });
 
     // route for simple query 2
+    //get given imf indicator value
     router.get("/getIMFInfo/:country_name", async (req, res) => {
         try {
             const {country_name} = req.params;
@@ -56,6 +58,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 3 
+    // evaluate certain country's performance compared to global performance in imf
     router.get("/getIMFPerformance/:country_name", async (req, res) => {
         try {
             const {country_name} = req.params;
@@ -75,6 +78,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 4
+    //summary stock stats for each country
     router.get("/getSummaryStockInfo/:country_name", async (req, res) => {
         try {
             const {country_name} = req.params;
@@ -94,6 +98,7 @@ module.exports = (pool) => {
     })
 
     // route for complex query 7
+    // get 2 similar performing countries in terms of education performance
     router.get("/getSimilarEducationCountries/:country_name", async (req, res) => {
         try {
             const { country_name } = req.params;
@@ -152,6 +157,7 @@ module.exports = (pool) => {
     
 
     // route for complex query 8
+    
     router.get("/getPercentageDiffEducation/:country_name", async (req, res) => {
         try {
             const {country_name} = req.params;

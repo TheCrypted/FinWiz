@@ -34,6 +34,7 @@ export const Portfolio = () => {
         1: "#bfdbfe"
     }
 
+    // get user's current investment portfolio
     const getInvestments = () => {
         fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/investment`, {
             method: "GET",
@@ -46,6 +47,7 @@ export const Portfolio = () => {
             .catch(e => navigate("/signin"))
     }
 
+    //get info on industries of user's investments
     const getIndustryDistribution = () => {
         fetch(`https://${HOST_AWS}:${PORT_AWS}/portfolio/industry-distribution`, {
             method: "GET",
@@ -67,6 +69,7 @@ export const Portfolio = () => {
             .catch(err => navigate("/signin"));
     }
 
+    //dynamically graph based on time period selected
     useEffect(() => {
         window.addEventListener("scroll", function (event) {
             setSearch(false)
@@ -126,6 +129,7 @@ export const Portfolio = () => {
                            className="w-full h-full font-mono placeholder:font-serif rounded-b-xl placeholder:text-opacity-20 text-white px-8 hover:cursor-text placeholder:text-white focus:shadow-xl bg-slate-950 bg-opacity-20 focus:bg-opacity-100 transition-all p-4"/>
                     <Collapse in={search} timeout="auto" unmountOnExit className="absolute z-20 top-16 w-full h-full">
                         <div className="w-full h-full backdrop-blur-xl ">
+                            {/* search bar results */}
                             {
                                 searchResults.map(item => (
                                     <div onClick={() => addInvestment(item.ticker)} key={item.ticker}
@@ -160,6 +164,7 @@ export const Portfolio = () => {
                     {authTokens?.access ? "Sign out" : "Sign In"}
                 </div>
             </div>
+            {/* display details on industry & sustainability levels of portfolio  */}
             <div className="h-[85%] w-full pl-12 pr-12 grid grid-cols-[70%_30%]">
                 <ChartFin industryBreak={industryBreak}/>
                 <div className="cursor-auto w-full h-full pl-2 pr-2 flex items-center justify-center">
@@ -265,6 +270,8 @@ export const Portfolio = () => {
 
                 </div>
                 <div className="w-full h-28"/>
+                
+                {/* relevant news on user's stocks */}
                 <div className=" w-full h-2/5 pr-8 flex gap-16">
                     <div
                         className="cursor-pointer text-white w-1/5 h-full grid grid-rows-[60%_20%_20%] opacity-60 transition-all hover:underline hover:opacity-100">

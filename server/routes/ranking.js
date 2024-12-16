@@ -3,6 +3,7 @@ const router = express.Router();
 
 module.exports = (pool) => {
     // Route for simple query 3
+    //get top 10 countries in terms of educaion performance
     router.get("/getTopCountriesEducation/:education_indicator_code", async (req, res) => {
         try {
             const { education_indicator_code } = req.params;
@@ -171,6 +172,7 @@ module.exports = (pool) => {
     });
 
 
+    //query to fetch more detailed data for 2 countries above & below
     router.get("/getCountryWindow", async (req, res) => {
         try {
             const countryName = req.query.country;

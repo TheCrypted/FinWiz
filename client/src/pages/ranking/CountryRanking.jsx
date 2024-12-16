@@ -63,6 +63,7 @@ export const CountryRanking = () => {
         updateIMFData(newCode)
     }
 
+    //get top and botto 10 countries in terms of IMF performance for given indicator code
     const updateIMFData = (newCode, name) => {
         fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesIMF/${newCode}`)
             .then((res) => res.json())
@@ -96,6 +97,7 @@ export const CountryRanking = () => {
             .catch(err => console.error(err));
     }, []);
 
+    //get top and botto 10 countries in terms of education performance for given indicator code
     useEffect(() => {
         fetch(`https://${HOST_AWS}:${PORT_AWS}/getTopCountriesEducation/${indicatorEduCode}`)
             .then((res) => res.json())
@@ -144,6 +146,7 @@ export const CountryRanking = () => {
                         Sign In
                     </div>
                 </div>
+                {/* on click & hover, display next few countries to declutter page */}
                 <div
                     className="pl-8 w-full h-[92%] text-gray-400 text-8xl gap-8 font-serif_light flex flex-col justify-center">
                     <div onClick={() => getCountryWindow(countryWindow.country_2_above)} className="hover:text-9xl hover:cursor-pointer hover:text-white transition-all text-7xl">

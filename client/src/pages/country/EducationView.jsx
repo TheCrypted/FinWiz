@@ -21,6 +21,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Footer} from "../../components/Footer.jsx";
 import {HOST_AWS, PORT_AWS} from "../../backend.json";
 
+//display data on hover
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const { name, value } = payload[0].payload;
@@ -33,6 +34,8 @@ const CustomTooltip = ({ active, payload }) => {
   }
   return null;
 };
+
+
 const CustomTooltip2 = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const { indicator_name, indicator_value } = payload[0].payload;
@@ -55,6 +58,7 @@ export const EducationView = () => {
   const [factor, setFactor] = useState(0)
   const navigate = useNavigate();
 
+  //make relevant education route queries
   useEffect(() => {
     fetch(`https://${HOST_AWS}:${PORT_AWS}/getPercentageDiffEducation/${country_name}`)
       .then((res) => res.json())
@@ -93,6 +97,7 @@ export const EducationView = () => {
   }, [country_name]);
 
   return (
+    // nav bar
       <div className="w-full bg-slate-900 h-full overflow-y scrollbar">
         <div className="w-full z-20 top-0 h-16 grid grid-cols-[15%_65%_10%_10%] text-2xl text-gray-500 font-serif font-thin ">
           <div onClick={() => navigate("/")}
@@ -152,6 +157,7 @@ export const EducationView = () => {
                 {PercentDifference[factor]?.indicator_name.split(":")[1]}
               </ReactTextTransition>
             </div>
+            {/* dynamic bar graph to display diff in performance compared to global average */}
             <ResponsiveContainer width="80%" height={400}>
               <LineChart
                   data={generateChartData(PercentDifference[factor])}

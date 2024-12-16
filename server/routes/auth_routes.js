@@ -6,7 +6,7 @@ const router = express.Router();
 require('dotenv').config();
 
 module.exports = (pool) => {
-
+    //get user details for given user id
     router.get('/get_user', verifyToken, async (req, res) => {
         try {
             const result = await pool.query(
@@ -27,6 +27,7 @@ module.exports = (pool) => {
         }
     });
 
+    //add new user detail into database
     router.post("/register", async (req, res) => {
         const {email, password, username} = req.body;
 
@@ -43,6 +44,7 @@ module.exports = (pool) => {
         }
     });
 
+    //authentify user login details
     router.post("/login", async (req, res) => {
         const { username, password } = req.body;
         try {

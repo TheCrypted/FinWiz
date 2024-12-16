@@ -34,7 +34,7 @@ export const Home = () => {
         return `rgba(${red}, ${green}, 0, 0.2)`;
     }
 
-
+    //fetch summary stats for given country
     useEffect(() => {
         if(!selectedPolygon) return;
 
@@ -78,7 +78,6 @@ export const Home = () => {
 
     }, [selectedPolygon]);
 
-
     const handlePolygonHover = useCallback((polygon) => {
         setHoveredPolygon(polygon);
         document.body.style.cursor = polygon ? 'pointer' : 'default';
@@ -91,7 +90,7 @@ export const Home = () => {
         return hoveredPolygon === polygon ? 'rgba(50, 50, 120, 0.6)' : 'rgba(0, 0, 0, 0)'
     }
 
-
+    //default globe view
     const handlePolygonClick = useCallback((polygon) => {
         setSelectedPolygon(polygon);
         const lat = polygon.properties.label_y - 15;
@@ -131,6 +130,7 @@ export const Home = () => {
     }, []);
 
     return (
+        //scroll bar
         <div className="w-full h-full relative bg-black overflow-hidden">
             <div className="w-full h-full absolute">
                 <div className="ticker-wrap bottom-0 absolute h-10 w-full text-slate-800 font-serif_light text-2xl ">
@@ -202,6 +202,7 @@ export const Home = () => {
                     {authTokens?.access ? "Sign out" : "Sign In"}
                 </div>
             </div>
+            {/* handle & keep track of selected country on globe map */}
             {selectedPolygon && <div onClick={e => {
                 e.stopPropagation();
                 setSelectedPolygon(null);
